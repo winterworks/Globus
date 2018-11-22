@@ -9,10 +9,14 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+
 import nl.bramwinter.globus.dummy.DummyContent;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 
-public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener {
+public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener, OnMapReadyCallback {
 
     BottomNavigationView buttonNavigationUpdate;
 
@@ -26,7 +30,7 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new LocationUpdatesFragment()).commit();
+                new SupportMapFragment()).commit();
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
@@ -37,7 +41,9 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
 
                     switch (menuItem.getItemId()) {
                         case R.id.navigation_map:
-                            fragment = new LocationUpdatesFragment();
+                            SupportMapFragment fragment1 = new SupportMapFragment();
+                            fragment1.getMapAsync(OverviewActivity.this);
+                            fragment = fragment1;
                             break;
                         case R.id.nav_updates:
                             fragment = new LocationUpdatesFragment();
@@ -59,6 +65,11 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
 
     }
 }
