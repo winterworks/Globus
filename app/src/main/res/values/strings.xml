@@ -12,11 +12,7 @@
     <string name="new_location">New location</string>
     <string name="user">User</string>
     <string name="user_moved_on_date">moved on: %1$s</string>
-<<<<<<< HEAD
->>>>>>> origin/winter-location-update-list
-=======
 
     <string name="name">Name</string>
     <string name="email">Email</string>
->>>>>>> origin/winter-location-update-list
 </resources>
