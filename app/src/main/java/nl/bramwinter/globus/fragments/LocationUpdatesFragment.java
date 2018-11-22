@@ -73,7 +73,7 @@ public class LocationUpdatesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            List<Location> locations = new ArrayList<Location>();
+            List<Location> locations = new ArrayList<>();
             locations.add(new Location(1.1, 2.2, new Date(),"Home", "icon"));
             locations.add(new Location(2.2, 3.3, new Date(),"Work", "icon"));
             locations.add(new Location(3.3, 4.4, new Date(),"Bar", "icon"));
@@ -81,7 +81,6 @@ public class LocationUpdatesFragment extends Fragment {
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {

@@ -14,11 +14,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link nl.bramwinter.globus.models.Location} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocationRecyclerViewAdapter.ViewHolder> {
 
     private final List<Location> locations;
@@ -44,7 +39,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
         // TODO get the username from the user
         holder.textUsername.setText("user");
 
-        Format formatter = new SimpleDateFormat("dd-MM-yy");
+        Format formatter = new SimpleDateFormat ("dd-MM-yy");
         String readableDate = formatter.format(locations.get(position).getAddedAt());
         holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.user_moved_on_date), readableDate));
 
@@ -65,19 +60,19 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
         return locations.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView textTitle;
-        public final TextView textUserMovedDate;
-        public final TextView textUsername;
-        public Location location;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView textTitle;
+        final TextView textUserMovedDate;
+        final TextView textUsername;
+        Location location;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
-            textTitle = (TextView) view.findViewById(R.id.textTitle);
-            textUserMovedDate = (TextView) view.findViewById(R.id.textUserMovedDate);
-            textUsername = (TextView) view.findViewById(R.id.textUsername);
+            textTitle = view.findViewById(R.id.textTitle);
+            textUserMovedDate = view.findViewById(R.id.textUserMovedDate);
+            textUsername = view.findViewById(R.id.textUsername);
         }
     }
 }

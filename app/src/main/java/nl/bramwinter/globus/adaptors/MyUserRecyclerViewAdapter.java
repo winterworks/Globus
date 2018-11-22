@@ -12,11 +12,6 @@ import nl.bramwinter.globus.models.User;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link User} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
 
     private final List<User> mValues;
@@ -37,8 +32,7 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        String fullName = mValues.get(position).getFirstname()+" "+mValues.get(position).getLastName();
-        holder.textName.setText(fullName);
+        holder.textName.setText(mValues.get(position).getFullName());
         holder.textEmail.setText(mValues.get(position).getEmail());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -58,13 +52,13 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView textName;
-        public final TextView textEmail;
-        public User mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView textName;
+        final TextView textEmail;
+        User mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             textName = view.findViewById(R.id.textName);

@@ -1,22 +1,21 @@
 package nl.bramwinter.globus.adaptors;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import nl.bramwinter.globus.OverviewActivity;
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.NotificationsFragment.OnListFragmentInteractionListener;
 import nl.bramwinter.globus.models.Contact;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link Contact} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
 
     private final List<Contact> mValues;
@@ -38,6 +37,8 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.nameView.setText(mValues.get(position).getContactor().getFullName());
+        holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest());
+        holder.buttonReject.setOnClickListener(v -> RejectContactRequest());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,20 +52,32 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
         });
     }
 
+    private void AcceptContactRequest(){
+        // TODO implement
+    }
+
+    private void RejectContactRequest(){
+        // TODO implement
+    }
+
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView nameView;
-        public Contact mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView nameView;
+        final Button buttonAccept;
+        final Button buttonReject;
+        Contact mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             nameView = view.findViewById(R.id.textName);
+            buttonAccept = mView.findViewById(R.id.buttonAccept);
+            buttonReject = mView.findViewById(R.id.buttonReject);
         }
     }
 }
