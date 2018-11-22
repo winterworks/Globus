@@ -9,10 +9,12 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 import nl.bramwinter.globus.models.Location;
+import nl.bramwinter.globus.models.User;
 
-public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener {
+public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener, ContactsFragment.OnListFragmentInteractionListener {
 
     BottomNavigationView buttonNavigationUpdate;
 
@@ -46,7 +48,7 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
                             fragment = new LocationUpdatesFragment();
                             break;
                         case R.id.nav_contact_list:
-                            fragment = new LocationUpdatesFragment();
+                            fragment = new ContactsFragment();
                             break;
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -58,7 +60,12 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
             };
 
     @Override
-    public void onListFragmentInteraction(Location item) {
+    public void onLocationUpdatesFragmentInteraction(Location item) {
+
+    }
+
+    @Override
+    public void onContactFragmentInteraction(User item) {
 
     }
 }

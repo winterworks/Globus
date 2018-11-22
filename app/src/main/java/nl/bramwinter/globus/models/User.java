@@ -7,8 +7,7 @@ public class User {
     private String lastName;
     private String email;
 
-    public User(Long uuid, String firstname, String lastName, String email) {
-        this.uuid = uuid;
+    public User(String firstname, String lastName, String email) {
         Firstname = firstname;
         this.lastName = lastName;
         this.email = email;
