@@ -19,7 +19,6 @@
         android:layout_alignParentBottom="true"
         app:menu="@menu/buttom_navigation"
         app:labelVisibilityMode="unlabeled"
-        app:itemIconTint="@android:color/holo_blue_light"
         android:background="?android:attr/windowBackground"/>
 
 </RelativeLayout>
