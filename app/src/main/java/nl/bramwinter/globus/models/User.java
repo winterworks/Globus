@@ -3,22 +3,22 @@ package nl.bramwinter.globus.models;
 public class User {
 
     private Long uuid;
-    private String Firstname;
+    private String firstName;
     private String lastName;
     private String email;
 
-    public User(String firstname, String lastName, String email) {
-        Firstname = firstname;
+    public User(String firstName, String lastName, String email) {
+        this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
 
-    public String getFirstname() {
-        return Firstname;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFirstname(String firstname) {
-        Firstname = firstname;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {
@@ -43,5 +43,9 @@ public class User {
 
     public void setUuid(Long uuid) {
         this.uuid = uuid;
+    }
+
+    public String getFullName() {
+        return firstName +" "+lastName;
     }
 }

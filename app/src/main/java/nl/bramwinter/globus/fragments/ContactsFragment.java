@@ -74,7 +74,6 @@ public class ContactsFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-
             List<User> users = new ArrayList<User>();
             users.add(new User("Andrea", "Anders", "a@a.com"));
             users.add(new User("Bernard", "Bolle", "b@b.com"));
@@ -84,7 +83,6 @@ public class ContactsFragment extends Fragment {
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {

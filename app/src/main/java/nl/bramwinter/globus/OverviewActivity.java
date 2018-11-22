@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+<<<<<<< HEAD
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -24,13 +25,24 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+=======
+>>>>>>> origin/winter-location-update-list
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+import nl.bramwinter.globus.fragments.NotificationsFragment;
+import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 
+<<<<<<< HEAD
 public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener, ContactsFragment.OnListFragmentInteractionListener, OnMapReadyCallback {
+=======
+public class OverviewActivity extends AppCompatActivity implements
+        LocationUpdatesFragment.OnListFragmentInteractionListener,
+        ContactsFragment.OnListFragmentInteractionListener,
+        NotificationsFragment.OnListFragmentInteractionListener {
+>>>>>>> origin/winter-location-update-list
 
     private static final String TAG = "Globus Map";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
@@ -102,7 +114,7 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
                             fragment = new LocationUpdatesFragment();
                             break;
                         case R.id.nav_notifications:
-                            fragment = new LocationUpdatesFragment();
+                            fragment = new NotificationsFragment();
                             break;
                         case R.id.nav_contact_list:
                             fragment = new ContactsFragment();
@@ -127,6 +139,7 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
     }
 
     @Override
+<<<<<<< HEAD
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
@@ -172,5 +185,9 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
                 mLocationPermissionGranted = true;
             }
         }
+=======
+    public void onNotificationsFragmentInteraction(Contact item) {
+
+>>>>>>> origin/winter-location-update-list
     }
 }

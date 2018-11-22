@@ -10,14 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.models.Location;
+import nl.bramwinter.globus.adaptors.MyContactsRecyclerViewAdapter;
+import nl.bramwinter.globus.models.Contact;
+import nl.bramwinter.globus.models.User;
 
 /**
  * A fragment representing a list of Items.
@@ -25,7 +24,7 @@ import nl.bramwinter.globus.models.Location;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class LocationUpdatesFragment extends Fragment {
+public class NotificationsFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -37,13 +36,13 @@ public class LocationUpdatesFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public LocationUpdatesFragment() {
+    public NotificationsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static LocationUpdatesFragment newInstance(int columnCount) {
-        LocationUpdatesFragment fragment = new LocationUpdatesFragment();
+    public static NotificationsFragment newInstance(int columnCount) {
+        NotificationsFragment fragment = new NotificationsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -62,7 +61,7 @@ public class LocationUpdatesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_location_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_contacts_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -73,14 +72,19 @@ public class LocationUpdatesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            List<Location> locations = new ArrayList<>();
-            locations.add(new Location(1.1, 2.2, new Date(),"Home", "icon"));
-            locations.add(new Location(2.2, 3.3, new Date(),"Work", "icon"));
-            locations.add(new Location(3.3, 4.4, new Date(),"Bar", "icon"));
-            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+
+            List<Contact> contacts = new ArrayList<>();
+            User a = new User("Andrea", "Anders", "a@a.com");
+            User b = new User("Bernard", "Bolle", "b@b.com");
+            User c = new User("Candice", "Calen", "c@c.com");
+
+            contacts.add(new Contact(a, b, false));
+            contacts.add(new Contact(b, c, true));
+            recyclerView.setAdapter(new MyContactsRecyclerViewAdapter(contacts, mListener));
         }
         return view;
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -98,6 +102,7 @@ public class LocationUpdatesFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -110,6 +115,6 @@ public class LocationUpdatesFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onLocationUpdatesFragmentInteraction(Location item);
+        void onNotificationsFragmentInteraction(Contact item);
     }
 }

@@ -23,6 +23,10 @@ android {
             resValue 'string', "api_key", mapApiKey
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 }
 
 dependencies {
