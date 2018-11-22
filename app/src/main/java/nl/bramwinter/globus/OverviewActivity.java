@@ -42,7 +42,6 @@ public class OverviewActivity extends AppCompatActivity implements
     GoogleMap mMap;
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
-    private Location mLastKnownLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +60,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
     public void getCurrentDeviceLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
         try {
             if (mLocationPermissionGranted) {
                 Task location = fusedLocationProviderClient.getLastLocation();
@@ -87,7 +85,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void moveCamera(LatLng latLng, int zoom) {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
@@ -121,14 +118,12 @@ public class OverviewActivity extends AppCompatActivity implements
             };
 
     @Override
-    public void onLocationUpdatesFragmentInteraction(Location item) {
-
-    }
+    public void onLocationUpdatesFragmentInteraction(Location item) { }
 
     @Override
-    public void onContactFragmentInteraction(User item) {
+    public void onContactFragmentInteraction(User item) { }
 
-    }
+    public void onNotificationsFragmentInteraction(Contact item) { }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -140,7 +135,6 @@ public class OverviewActivity extends AppCompatActivity implements
                 return;
             }
             mMap.setMyLocationEnabled(true);
-
         }
     }
 
@@ -177,7 +171,5 @@ public class OverviewActivity extends AppCompatActivity implements
             }
         }
     }
-    public void onNotificationsFragmentInteraction(Contact item) {
 
-    }
 }
