@@ -1,20 +1,23 @@
 package nl.bramwinter.globus;
 
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Button;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+import nl.bramwinter.globus.fragments.NotificationsFragment;
+import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 
-public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener, ContactsFragment.OnListFragmentInteractionListener {
+public class OverviewActivity extends AppCompatActivity implements
+        LocationUpdatesFragment.OnListFragmentInteractionListener,
+        ContactsFragment.OnListFragmentInteractionListener,
+        NotificationsFragment.OnListFragmentInteractionListener {
 
     BottomNavigationView buttonNavigationUpdate;
 
@@ -45,7 +48,7 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
                             fragment = new LocationUpdatesFragment();
                             break;
                         case R.id.nav_notifications:
-                            fragment = new LocationUpdatesFragment();
+                            fragment = new NotificationsFragment();
                             break;
                         case R.id.nav_contact_list:
                             fragment = new ContactsFragment();
@@ -66,6 +69,11 @@ public class OverviewActivity extends AppCompatActivity implements LocationUpdat
 
     @Override
     public void onContactFragmentInteraction(User item) {
+
+    }
+
+    @Override
+    public void onNotificationsFragmentInteraction(Contact item) {
 
     }
 }

@@ -7,22 +7,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.ContactsFragment.OnListFragmentInteractionListener;
-import nl.bramwinter.globus.models.User;
+import nl.bramwinter.globus.fragments.NotificationsFragment.OnListFragmentInteractionListener;
+import nl.bramwinter.globus.models.Contact;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link User} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Contact} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
+public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
 
-    private final List<User> mValues;
+    private final List<Contact> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyUserRecyclerViewAdapter(List<User> items, OnListFragmentInteractionListener listener) {
+    public MyContactsRecyclerViewAdapter(List<Contact> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -30,16 +30,14 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_user, parent, false);
+                .inflate(R.layout.fragment_contacts, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        String fullName = mValues.get(position).getFirstname()+" "+mValues.get(position).getLastName();
-        holder.textName.setText(fullName);
-        holder.textEmail.setText(mValues.get(position).getEmail());
+        holder.nameView.setText(mValues.get(position).getContactor().getFullName());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,7 +45,7 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onContactFragmentInteraction(holder.mItem);
+                    mListener.onNotificationsFragmentInteraction(holder.mItem);
                 }
             }
         });
@@ -60,15 +58,13 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView textName;
-        public final TextView textEmail;
-        public User mItem;
+        public final TextView nameView;
+        public Contact mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            textName = view.findViewById(R.id.textName);
-            textEmail = view.findViewById(R.id.textEmail);
+            nameView = view.findViewById(R.id.textName);
         }
     }
 }
