@@ -8,11 +8,12 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-<<<<<<< HEAD
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -25,8 +26,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-=======
->>>>>>> origin/winter-location-update-list
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -35,14 +34,11 @@ import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 
-<<<<<<< HEAD
-public class OverviewActivity extends AppCompatActivity implements LocationUpdatesFragment.OnListFragmentInteractionListener, ContactsFragment.OnListFragmentInteractionListener, OnMapReadyCallback {
-=======
 public class OverviewActivity extends AppCompatActivity implements
         LocationUpdatesFragment.OnListFragmentInteractionListener,
         ContactsFragment.OnListFragmentInteractionListener,
-        NotificationsFragment.OnListFragmentInteractionListener {
->>>>>>> origin/winter-location-update-list
+        NotificationsFragment.OnListFragmentInteractionListener,
+        OnMapReadyCallback {
 
     private static final String TAG = "Globus Map";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
@@ -62,9 +58,9 @@ public class OverviewActivity extends AppCompatActivity implements
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         getMapPermissions();
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new SupportMapFragment()).commit();
+        SupportMapFragment fragment = new SupportMapFragment();
+        fragment.getMapAsync(OverviewActivity.this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
     }
 
     public void getCurrentDeviceLocation() {
@@ -78,7 +74,7 @@ public class OverviewActivity extends AppCompatActivity implements
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Found location");
-                            Location currentDeviceLocation = (Location) task.getResult();
+                            android.location.Location currentDeviceLocation = (android.location.Location) task.getResult();
 
                             moveCamera(new LatLng(currentDeviceLocation.getLatitude(), currentDeviceLocation.getLongitude()), 15);
                         } else {
@@ -106,9 +102,9 @@ public class OverviewActivity extends AppCompatActivity implements
 
                     switch (menuItem.getItemId()) {
                         case R.id.navigation_map:
-                            SupportMapFragment fragment1 = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map_fragment); //new SupportMapFragment();
-                            fragment1.getMapAsync(OverviewActivity.this);
-                            fragment = fragment1;
+
+                            fragment = new SupportMapFragment();
+                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
                             break;
                         case R.id.nav_updates:
                             fragment = new LocationUpdatesFragment();
@@ -139,7 +135,6 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-<<<<<<< HEAD
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
@@ -185,9 +180,8 @@ public class OverviewActivity extends AppCompatActivity implements
                 mLocationPermissionGranted = true;
             }
         }
-=======
+    }
     public void onNotificationsFragmentInteraction(Contact item) {
 
->>>>>>> origin/winter-location-update-list
     }
 }
