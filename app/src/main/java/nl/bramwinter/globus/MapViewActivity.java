@@ -10,7 +10,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapViewActivity extends FragmentActivity implements OnMapReadyCallback {
+import nl.bramwinter.globus.dummy.DummyContent;
+import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+
+public class MapViewActivity extends FragmentActivity implements OnMapReadyCallback, LocationUpdatesFragment.OnListFragmentInteractionListener {
 
     private GoogleMap mMap;
 
@@ -42,5 +45,10 @@ public class MapViewActivity extends FragmentActivity implements OnMapReadyCallb
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
     }
 }
