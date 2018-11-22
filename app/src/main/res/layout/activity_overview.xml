@@ -6,11 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".OverviewActivity">
 
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/buttom_navigation_view" />
+
     <android.support.design.widget.BottomNavigationView
+        android:id="@+id/buttom_navigation_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:menu="@menu/buttom_navigation"
-        app:labelVisibilityMode="labeled"/>
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconTint="@android:color/holo_blue_light"
+        android:background="?android:attr/windowBackground"/>
 
 </RelativeLayout>
