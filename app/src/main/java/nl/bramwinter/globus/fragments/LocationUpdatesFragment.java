@@ -10,10 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.dummy.DummyContent;
-import nl.bramwinter.globus.dummy.DummyContent.DummyItem;
+import nl.bramwinter.globus.models.Location;
 
 /**
  * A fragment representing a list of Items.
@@ -69,7 +73,11 @@ public class LocationUpdatesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            List<Location> locations = new ArrayList<Location>();
+            locations.add(new Location(1.1, 2.2, new Date(),"Home", "icon"));
+            locations.add(new Location(2.2, 3.3, new Date(),"Work", "icon"));
+            locations.add(new Location(3.3, 4.4, new Date(),"Bar", "icon"));
+            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
         }
         return view;
     }
@@ -103,6 +111,6 @@ public class LocationUpdatesFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Location item);
     }
 }

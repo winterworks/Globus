@@ -1,17 +1,20 @@
 package nl.bramwinter.globus.models;
 
+import java.util.Date;
+
 public class Location {
 
     private Long uuid;
     private double latitude;
     private double longitude;
+    private Date addedAt;
     private String name;
     private String icon;
 
-    public Location(Long uuid, double latitude, double longitude, String name, String icon) {
-        this.uuid = uuid;
+    public Location(double latitude, double longitude, Date addedAt, String name, String icon) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.addedAt = addedAt;
         this.name = name;
         this.icon = icon;
     }
@@ -54,5 +57,13 @@ public class Location {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Date getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(Date addedAt) {
+        this.addedAt = addedAt;
     }
 }
