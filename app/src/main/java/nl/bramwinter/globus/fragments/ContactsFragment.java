@@ -1,7 +1,12 @@
 package nl.bramwinter.globus.fragments;
 
+import android.arch.lifecycle.Observer;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,13 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import nl.bramwinter.globus.DataService;
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.adaptors.MyUserRecyclerViewAdapter;
-import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 
 /**
@@ -32,6 +35,10 @@ public class ContactsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private DataService dataService;
+    private ServiceConnection dataServiceConnection;
+    private Observer<List<User>> userObserver;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -54,6 +61,8 @@ public class ContactsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setupDataService();
+
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -73,15 +82,29 @@ public class ContactsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-
-            List<User> users = new ArrayList<User>();
-            users.add(new User("Andrea", "Anders", "a@a.com"));
-            users.add(new User("Bernard", "Bolle", "b@b.com"));
-            users.add(new User("Candice", "Calen", "c@c.com"));
-            users.add(new User("Dana", "Dale", "d@d.com"));
-            recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
+            userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
         }
         return view;
+    }
+
+    private void setupDataService() {
+        dataServiceConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                dataService = ((DataService.DataServiceBinder) service).getService();
+                initiateObservers();
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+                dataService = null;
+            }
+        };
+    }
+
+    private void initiateObservers() {
+        if (dataService != null) {
+            dataService.getCurrentUsers().observe(this, userObserver);
+            dataService.updateUsers();
+        }
     }
 
     @Override
