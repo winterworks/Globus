@@ -14,7 +14,7 @@ import nl.bramwinter.globus.models.User;
 public class DataService extends Service {
 
     protected Binder binder;
-    private MutableLiveData<List<User>> users;
+    private MutableLiveData<List<User>> users = new MutableLiveData<>();
 
     public DataService() {
         binder = new DataServiceBinder();
@@ -36,7 +36,7 @@ public class DataService extends Service {
     }
 
     public void updateUsers() {
-        List<User> newUsers = users.getValue();
+        List<User> newUsers = new ArrayList<>();
 
         newUsers.add(new User("Andrea", "Anders", "a@a.com"));
         newUsers.add(new User("Bernard", "Bolle", "b@b.com"));

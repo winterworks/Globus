@@ -1,12 +1,9 @@
 package nl.bramwinter.globus.fragments;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +14,6 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import nl.bramwinter.globus.DataService;
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.adaptors.MyUserRecyclerViewAdapter;
 import nl.bramwinter.globus.models.User;
@@ -36,9 +32,10 @@ public class ContactsFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
-    private DataService dataService;
-    private ServiceConnection dataServiceConnection;
+//    private DataService dataService;
+//    private ServiceConnection dataServiceConnection;
     private Observer<List<User>> userObserver;
+    private MutableLiveData<List<User>> userLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -61,8 +58,6 @@ public class ContactsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setupDataService();
-
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -83,28 +78,13 @@ public class ContactsFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
+            userLiveData.observe(this, userObserver);
         }
         return view;
     }
 
-    private void setupDataService() {
-        dataServiceConnection = new ServiceConnection() {
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                dataService = ((DataService.DataServiceBinder) service).getService();
-                initiateObservers();
-            }
-
-            public void onServiceDisconnected(ComponentName className) {
-                dataService = null;
-            }
-        };
-    }
-
-    private void initiateObservers() {
-        if (dataService != null) {
-            dataService.getCurrentUsers().observe(this, userObserver);
-            dataService.updateUsers();
-        }
+    public void setUsersObserver(MutableLiveData<List<User>> userLiveData) {
+        this.userLiveData = userLiveData;
     }
 
     @Override
