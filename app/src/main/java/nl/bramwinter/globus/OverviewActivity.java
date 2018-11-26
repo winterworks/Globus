@@ -1,7 +1,6 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +28,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
@@ -54,6 +50,51 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Fragment fragment = null;
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.navigation_map:
+
+                            fragment = new SupportMapFragment();
+                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
+                            break;
+                        case R.id.nav_updates:
+                            fragment = new LocationUpdatesFragment();
+
+                            LocationUpdatesFragment locationUpdatesFragment = (LocationUpdatesFragment) fragment;
+                            locationUpdatesFragment.setLocationsLiveData(dataService.getCurrentLocations());
+                            dataService.updateLocations();
+
+                            break;
+                        case R.id.nav_notifications:
+                            fragment = new NotificationsFragment();
+
+                            NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
+                            notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
+                            dataService.updateContacts();
+
+                            break;
+                        case R.id.nav_contact_list:
+                            fragment = new ContactsFragment();
+
+                            ContactsFragment contactsFragment = (ContactsFragment) fragment;
+                            contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
+                            dataService.updateUsers();
+
+                            break;
+                    }
+                    assert fragment != null;
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            fragment).commit();
+
+                    return true;
+                }
+
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,44 +154,6 @@ public class OverviewActivity extends AppCompatActivity implements
             }
         };
     }
-
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Fragment fragment = null;
-
-                    switch (menuItem.getItemId()) {
-                        case R.id.navigation_map:
-
-                            fragment = new SupportMapFragment();
-                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
-                            break;
-                        case R.id.nav_updates:
-                            fragment = new LocationUpdatesFragment();
-                            break;
-                        case R.id.nav_notifications:
-                            fragment = new NotificationsFragment();
-                            break;
-                        case R.id.nav_contact_list:
-                            fragment = new ContactsFragment();
-
-                            if (dataService != null) {
-//                              ContactsFragment contactsFragment = getSupportFragmentManager().findFragmentById(R.id.nav_contact_fragment);
-                                ContactsFragment contactsFragment = (ContactsFragment) fragment;
-                                contactsFragment.setUsersObserver(dataService.getCurrentUsers());
-                                dataService.updateUsers();
-                            }
-
-                            break;
-                    }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            fragment).commit();
-
-                    return true;
-                }
-
-            };
 
     @Override
     public void onLocationUpdatesFragmentInteraction(Location item) {

@@ -32,10 +32,7 @@ public class ContactsFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
-//    private DataService dataService;
-//    private ServiceConnection dataServiceConnection;
-    private Observer<List<User>> userObserver;
-    private MutableLiveData<List<User>> userLiveData;
+    private MutableLiveData<List<User>> usersLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -77,14 +74,14 @@ public class ContactsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
-            userLiveData.observe(this, userObserver);
+            Observer<List<User>> userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
+            usersLiveData.observe(this, userObserver);
         }
         return view;
     }
 
-    public void setUsersObserver(MutableLiveData<List<User>> userLiveData) {
-        this.userLiveData = userLiveData;
+    public void setUsersLiveData(MutableLiveData<List<User>> userLiveData) {
+        this.usersLiveData = userLiveData;
     }
 
     @Override

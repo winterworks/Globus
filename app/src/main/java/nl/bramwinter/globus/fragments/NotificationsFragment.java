@@ -1,5 +1,7 @@
 package nl.bramwinter.globus.fragments;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,13 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.adaptors.MyContactsRecyclerViewAdapter;
 import nl.bramwinter.globus.models.Contact;
-import nl.bramwinter.globus.models.User;
 
 /**
  * A fragment representing a list of Items.
@@ -31,6 +31,8 @@ public class NotificationsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private MutableLiveData<List<Contact>> contactsLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -73,18 +75,15 @@ public class NotificationsFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            List<Contact> contacts = new ArrayList<>();
-            User a = new User("Andrea", "Anders", "a@a.com");
-            User b = new User("Bernard", "Bolle", "b@b.com");
-            User c = new User("Candice", "Calen", "c@c.com");
-
-            contacts.add(new Contact(a, b, false));
-            contacts.add(new Contact(b, c, true));
-            recyclerView.setAdapter(new MyContactsRecyclerViewAdapter(contacts, mListener));
+            Observer<List<Contact>> contactsObserver = contacts -> recyclerView.setAdapter(new MyContactsRecyclerViewAdapter(contacts, mListener));
+            contactsLiveData.observe(this, contactsObserver);
         }
         return view;
     }
 
+    public void setContactsLiveData(MutableLiveData<List<Contact>> contactsLiveData) {
+        this.contactsLiveData = contactsLiveData;
+    }
 
     @Override
     public void onAttach(Context context) {
