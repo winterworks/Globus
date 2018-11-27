@@ -6,11 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.ContactsFragment.OnListFragmentInteractionListener;
 import nl.bramwinter.globus.models.User;
-
-import java.util.List;
 
 public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
 
@@ -35,14 +35,11 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
         holder.textName.setText(mValues.get(position).getFullName());
         holder.textEmail.setText(mValues.get(position).getEmail());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onContactFragmentInteraction(holder.mItem);
-                }
+        holder.mView.setOnClickListener(v -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onContactFragmentInteraction(holder.mItem);
             }
         });
     }

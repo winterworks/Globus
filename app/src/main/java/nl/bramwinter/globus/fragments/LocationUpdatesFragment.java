@@ -1,5 +1,7 @@
 package nl.bramwinter.globus.fragments;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,13 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
 import nl.bramwinter.globus.R;
+import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
 import nl.bramwinter.globus.models.Location;
 
 /**
@@ -32,6 +31,8 @@ public class LocationUpdatesFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private MutableLiveData<List<Location>> locationsLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -73,13 +74,15 @@ public class LocationUpdatesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            List<Location> locations = new ArrayList<>();
-            locations.add(new Location(1.1, 2.2, new Date(),"Home", "icon"));
-            locations.add(new Location(2.2, 3.3, new Date(),"Work", "icon"));
-            locations.add(new Location(3.3, 4.4, new Date(),"Bar", "icon"));
-            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+
+            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+            locationsLiveData.observe(this, locationsObserver);
         }
         return view;
+    }
+
+    public void setLocationsLiveData(MutableLiveData<List<Location>> locationsLiveData) {
+        this.locationsLiveData = locationsLiveData;
     }
 
     @Override
@@ -98,6 +101,7 @@ public class LocationUpdatesFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

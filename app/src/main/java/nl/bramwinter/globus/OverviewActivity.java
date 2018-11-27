@@ -1,8 +1,13 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -43,6 +48,54 @@ public class OverviewActivity extends AppCompatActivity implements
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
 
+    private DataService dataService;
+    private ServiceConnection dataServiceConnection;
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    Fragment fragment = null;
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.navigation_map:
+
+                            fragment = new SupportMapFragment();
+                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
+                            break;
+                        case R.id.nav_updates:
+                            fragment = new LocationUpdatesFragment();
+
+                            LocationUpdatesFragment locationUpdatesFragment = (LocationUpdatesFragment) fragment;
+                            locationUpdatesFragment.setLocationsLiveData(dataService.getCurrentLocations());
+                            dataService.updateLocations();
+
+                            break;
+                        case R.id.nav_notifications:
+                            fragment = new NotificationsFragment();
+
+                            NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
+                            notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
+                            dataService.updateContacts();
+
+                            break;
+                        case R.id.nav_contact_list:
+                            fragment = new ContactsFragment();
+
+                            ContactsFragment contactsFragment = (ContactsFragment) fragment;
+                            contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
+                            dataService.updateUsers();
+
+                            break;
+                    }
+                    assert fragment != null;
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            fragment).commit();
+
+                    return true;
+                }
+
+            };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +104,9 @@ public class OverviewActivity extends AppCompatActivity implements
 
         buttonNavigationUpdate = findViewById(R.id.buttom_navigation_view);
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+
+        setupDataService();
+        bindService(new Intent(OverviewActivity.this, DataService.class), dataServiceConnection, Context.BIND_AUTO_CREATE);
 
         getMapPermissions();
         SupportMapFragment fragment = new SupportMapFragment();
@@ -87,43 +143,29 @@ public class OverviewActivity extends AppCompatActivity implements
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Fragment fragment = null;
+    private void setupDataService() {
+        dataServiceConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                dataService = ((DataService.DataServiceBinder) service).getService();
+            }
 
-                    switch (menuItem.getItemId()) {
-                        case R.id.navigation_map:
-
-                            fragment = new SupportMapFragment();
-                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
-                            break;
-                        case R.id.nav_updates:
-                            fragment = new LocationUpdatesFragment();
-                            break;
-                        case R.id.nav_notifications:
-                            fragment = new NotificationsFragment();
-                            break;
-                        case R.id.nav_contact_list:
-                            fragment = new ContactsFragment();
-                            break;
-                    }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            fragment).commit();
-
-                    return true;
-                }
-
-            };
+            public void onServiceDisconnected(ComponentName className) {
+                dataService = null;
+            }
+        };
+    }
 
     @Override
-    public void onLocationUpdatesFragmentInteraction(Location item) { }
+    public void onLocationUpdatesFragmentInteraction(Location item) {
+    }
 
     @Override
-    public void onContactFragmentInteraction(User item) { }
+    public void onContactFragmentInteraction(User item) {
+    }
 
-    public void onNotificationsFragmentInteraction(Contact item) { }
+    public void onNotificationsFragmentInteraction(Contact item) {
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -140,7 +182,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void getMapPermissions() {
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION};
+                Manifest.permission.ACCESS_COARSE_LOCATION};
 
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

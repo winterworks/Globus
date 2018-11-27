@@ -1,5 +1,7 @@
 package nl.bramwinter.globus.fragments;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,13 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.adaptors.MyUserRecyclerViewAdapter;
-import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 
 /**
@@ -32,6 +31,8 @@ public class ContactsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private MutableLiveData<List<User>> usersLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -73,15 +74,14 @@ public class ContactsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-
-            List<User> users = new ArrayList<User>();
-            users.add(new User("Andrea", "Anders", "a@a.com"));
-            users.add(new User("Bernard", "Bolle", "b@b.com"));
-            users.add(new User("Candice", "Calen", "c@c.com"));
-            users.add(new User("Dana", "Dale", "d@d.com"));
-            recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
+            Observer<List<User>> userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
+            usersLiveData.observe(this, userObserver);
         }
         return view;
+    }
+
+    public void setUsersLiveData(MutableLiveData<List<User>> userLiveData) {
+        this.usersLiveData = userLiveData;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package nl.bramwinter.globus.adaptors;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +7,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import nl.bramwinter.globus.OverviewActivity;
+import java.util.List;
+
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.NotificationsFragment.OnListFragmentInteractionListener;
 import nl.bramwinter.globus.models.Contact;
-
-import java.util.List;
 
 public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
 
@@ -40,23 +37,20 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
         holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest());
         holder.buttonReject.setOnClickListener(v -> RejectContactRequest());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onNotificationsFragmentInteraction(holder.mItem);
-                }
+        holder.mView.setOnClickListener(v -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onNotificationsFragmentInteraction(holder.mItem);
             }
         });
     }
 
-    private void AcceptContactRequest(){
+    private void AcceptContactRequest() {
         // TODO implement
     }
 
-    private void RejectContactRequest(){
+    private void RejectContactRequest() {
         // TODO implement
     }
 
