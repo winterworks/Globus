@@ -41,16 +41,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
+    <TableLayout
+        android:id="@+id/radioButtonsTable"
+        android:layout_width="128dp"
+        android:layout_height="256dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="16dp"
         android:layout_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/radioGroupSelectIcon"
-        app:layout_constraintTop_toBottomOf="@+id/editLocationDescription"
-        app:srcCompat="@drawable/ic_home_black_24dp" />
+        android:minHeight="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editLocationDescription">
+
+    </TableLayout>
 
     <RadioGroup
         android:id="@+id/radioGroupSelectIcon"
@@ -61,44 +63,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editLocationDescription">
 
-        <RadioButton
-            android:id="@+id/radioButtonExample2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <RadioButton
-            android:id="@+id/radioButtonExample1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <RadioButton
-            android:id="@+id/radioButtonExample3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
     </RadioGroup>
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@+id/radioGroupSelectIcon"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
-        app:srcCompat="@drawable/ic_location_city_black_24dp" />
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@+id/radioGroupSelectIcon"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3"
-        app:srcCompat="@drawable/ic_casino_black_24dp" />
 
 </android.support.constraint.ConstraintLayout>

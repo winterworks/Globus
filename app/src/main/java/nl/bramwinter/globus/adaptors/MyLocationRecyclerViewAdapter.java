@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.Format;
@@ -13,6 +14,7 @@ import java.util.List;
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment.OnListFragmentInteractionListener;
 import nl.bramwinter.globus.models.Location;
+import nl.bramwinter.globus.util.MyProperties;
 
 public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocationRecyclerViewAdapter.ViewHolder> {
 
@@ -38,6 +40,10 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
         holder.textTitle.setText(titleText);
         // TODO get the username from the user
         holder.textUsername.setText("user");
+        Integer iconResource = locations.get(position).getIcon();
+        if (iconResource != null) {
+            holder.imageViewIcon.setImageResource(MyProperties.iconMap.get(iconResource));
+        }
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");
         String readableDate = formatter.format(locations.get(position).getAddedAt());
@@ -62,6 +68,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
         final TextView textTitle;
         final TextView textUserMovedDate;
         final TextView textUsername;
+        final ImageView imageViewIcon;
         Location location;
 
         ViewHolder(View view) {
@@ -70,6 +77,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
             textTitle = view.findViewById(R.id.textTitle);
             textUserMovedDate = view.findViewById(R.id.textUserMovedDate);
             textUsername = view.findViewById(R.id.textUsername);
+            imageViewIcon = view.findViewById(R.id.imageViewIcon);
         }
     }
 }

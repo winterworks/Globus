@@ -5,14 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
@@ -23,6 +29,8 @@ public class ManageLocations extends AppCompatActivity {
     private Button buttonCancel;
     private EditText editLocationDescription;
     private RadioGroup radioGroupSelectIcon;
+    private TableLayout radioButtonsTable;
+    private RadioGroup radioGroup;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -41,6 +49,27 @@ public class ManageLocations extends AppCompatActivity {
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonCancel.setOnClickListener(v -> cancelActivity());
         buttonAddLocation.setOnClickListener(v -> addLocation());
+
+        int index = 0;
+        radioButtonsTable = findViewById(R.id.radioButtonsTable);
+        radioGroup = findViewById(R.id.radioGroupSelectIcon);
+        for (Integer imageResourceId : MyProperties.iconMap) {
+            TableRow row = new TableRow(this);
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            // RadioButton
+            row.setLayoutParams(lp);
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setId(index);
+            radioGroup.addView(radioButton);
+
+            // ImageView
+            ImageView image = new ImageView(getApplicationContext());
+            image.setImageResource(imageResourceId);
+            row.addView(image);
+
+            radioButtonsTable.addView(row, index);
+            index++;
+        }
     }
 
     private void cancelActivity() {

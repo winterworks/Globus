@@ -9,9 +9,9 @@ public class Location {
     private double longitude;
     private Date addedAt;
     private String name;
-    private int icon;
+    private Integer icon;
 
-    public Location(double latitude, double longitude, Date addedAt, String name, int icon) {
+    public Location(double latitude, double longitude, Date addedAt, String name, Integer icon) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.addedAt = addedAt;
@@ -51,11 +51,11 @@ public class Location {
         this.name = name;
     }
 
-    public int getIcon() {
+    public Integer getIcon() {
         return icon;
     }
 
-    public void setIcon(int icon) {
+    public void setIcon(Integer icon) {
         this.icon = icon;
     }
 
