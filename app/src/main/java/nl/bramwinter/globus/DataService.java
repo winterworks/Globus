@@ -2,9 +2,11 @@ package nl.bramwinter.globus;
 
 import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,9 +19,13 @@ import nl.bramwinter.globus.models.User;
 public class DataService extends Service {
 
     protected Binder binder;
-    private MutableLiveData<List<User>> users = new MutableLiveData<>();
-    private MutableLiveData<List<Location>> locations = new MutableLiveData<>();
-    private MutableLiveData<List<Contact>> contacts = new MutableLiveData<>();
+
+    private List<User> users = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
+    private List<Contact> contacts = new ArrayList<>();
+    private MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
 
     public DataService() {
         binder = new DataServiceBinder();
@@ -31,48 +37,52 @@ public class DataService extends Service {
     }
 
     public MutableLiveData<List<User>> getCurrentUsers() {
-        return users;
+        return usersLiveData;
     }
 
     public MutableLiveData<List<Location>> getCurrentLocations() {
-        return locations;
+        return locationsLiveData;
     }
 
     public MutableLiveData<List<Contact>> getCurrentContacts() {
-        return contacts;
+        return contactsLiveData;
+    }
+
+    public void addLocation(Location location){
+        locations.add(location);
+        updateLocations();
     }
 
     public void updateUsers() {
-        List<User> newUsers = new ArrayList<>();
-
-        newUsers.add(new User("Andrea", "Anders", "a@a.com"));
-        newUsers.add(new User("Bernard", "Bolle", "b@b.com"));
-        newUsers.add(new User("Candice", "Calen", "c@c.com"));
-        newUsers.add(new User("Dana", "Dale", "d@d.com"));
-
-        users.setValue(newUsers);
+        usersLiveData.setValue(users);
     }
 
     public void updateLocations() {
-        List<Location> newLocations = new ArrayList<>();
-
-        newLocations.add(new Location(1.1, 2.2, new Date(), "Home", "icon"));
-        newLocations.add(new Location(2.2, 3.3, new Date(), "Work", "icon"));
-        newLocations.add(new Location(3.3, 4.4, new Date(), "Bar", "icon"));
-
-        locations.setValue(newLocations);
+        locationsLiveData.setValue(locations);
     }
 
     public void updateContacts() {
-        List<Contact> newContacts = new ArrayList<>();
+        contactsLiveData.setValue(contacts);
+    }
+
+    public void insertTestData(){
+        users.add(new User("Andrea", "Anders", "a@a.com"));
+        users.add(new User("Bernard", "Bolle", "b@b.com"));
+        users.add(new User("Candice", "Calen", "c@c.com"));
+        users.add(new User("Dana", "Dale", "d@d.com"));
+        updateUsers();
+
+        locations.add(new Location(1.1, 2.2, new Date(), "Home", 0));
+        locations.add(new Location(2.2, 3.3, new Date(), "Work", 1));
+        locations.add(new Location(3.3, 4.4, new Date(), "Bar", 2));
+        updateLocations();
+
         User a = new User("Andrea", "Anders", "a@a.com");
         User b = new User("Bernard", "Bolle", "b@b.com");
         User c = new User("Candice", "Calen", "c@c.com");
-
-        newContacts.add(new Contact(a, b, false));
-        newContacts.add(new Contact(b, c, true));
-
-        contacts.setValue(newContacts);
+        contacts.add(new Contact(a, b, false));
+        contacts.add(new Contact(b, c, true));
+        updateContacts();
     }
 
     class DataServiceBinder extends Binder {
