@@ -24,4 +24,5 @@
     <string name="log_in">Log In</string>
     <string name="password">Password</string>
     <string name="password_hint">Type in the email address you want to register with</string>
+    <string name="auth_failed">Authentication failed :-(</string>
 </resources>
