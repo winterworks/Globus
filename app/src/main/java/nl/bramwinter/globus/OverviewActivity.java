@@ -10,12 +10,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -41,12 +43,14 @@ public class OverviewActivity extends AppCompatActivity implements
         NotificationsFragment.OnListFragmentInteractionListener,
         OnMapReadyCallback {
 
+    static final int ADD_LOCATION_REQUEST = 195;
     private static final String TAG = "Globus Map";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
     BottomNavigationView buttonNavigationUpdate;
     GoogleMap mMap;
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
+    FloatingActionButton buttonAddLocation;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -108,6 +112,8 @@ public class OverviewActivity extends AppCompatActivity implements
         setupDataService();
         bindService(new Intent(OverviewActivity.this, DataService.class), dataServiceConnection, Context.BIND_AUTO_CREATE);
 
+        setupUi();
+
         getMapPermissions();
         SupportMapFragment fragment = new SupportMapFragment();
         fragment.getMapAsync(OverviewActivity.this);
@@ -137,6 +143,17 @@ public class OverviewActivity extends AppCompatActivity implements
         } catch (SecurityException e) {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    private void setupUi(){
+        buttonAddLocation = findViewById(R.id.FabAddLocation);
+        buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
+        buttonAddLocation.setOnClickListener(v -> openManageLocationsActivity());
+    }
+
+    private void openManageLocationsActivity() {
+        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
+        startActivityForResult(intent, ADD_LOCATION_REQUEST);
     }
 
     private void moveCamera(LatLng latLng, int zoom) {
