@@ -15,36 +15,36 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.adaptors.MyUserRecyclerViewAdapter;
-import nl.bramwinter.globus.models.User;
+import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
+import nl.bramwinter.globus.models.Location;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnContactInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnMyLocationInteractionListener}
  * interface.
  */
-public class ContactsFragment extends Fragment {
+public class MyLocationsFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnContactInteractionListener mListener;
+    private OnMyLocationInteractionListener mListener;
 
-    private MutableLiveData<List<User>> usersLiveData;
+    private MutableLiveData<List<Location>> locationsLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ContactsFragment() {
+    public MyLocationsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ContactsFragment newInstance(int columnCount) {
-        ContactsFragment fragment = new ContactsFragment();
+    public static MyLocationsFragment newInstance(int columnCount) {
+        MyLocationsFragment fragment = new MyLocationsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -63,7 +63,7 @@ public class ContactsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_user_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_locations_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -74,24 +74,26 @@ public class ContactsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            Observer<List<User>> userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
-            usersLiveData.observe(this, userObserver);
+//            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+
+            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+            locationsLiveData.observe(this, locationsObserver);
         }
         return view;
     }
 
-    public void setUsersLiveData(MutableLiveData<List<User>> userLiveData) {
-        this.usersLiveData = userLiveData;
+    public void setLocationsLiveData(MutableLiveData<List<Location>> locationsLiveData) {
+        this.locationsLiveData = locationsLiveData;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnContactInteractionListener) {
-            mListener = (OnContactInteractionListener) context;
+        if (context instanceof OnMyLocationInteractionListener) {
+            mListener = (OnMyLocationInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnContactInteractionListener");
+                    + " must implement OnMyLocationInteractionListener");
         }
     }
 
@@ -111,7 +113,7 @@ public class ContactsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnContactInteractionListener {
-        void onContactFragmentInteraction(User item);
+    public interface OnMyLocationInteractionListener {
+        void onListFragmentInteraction(Location item);
     }
 }

@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -27,23 +26,25 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
+import nl.bramwinter.globus.fragments.dummy.DummyContent;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
 import nl.bramwinter.globus.util.MyProperties;
 
 public class OverviewActivity extends AppCompatActivity implements
-        LocationUpdatesFragment.OnListFragmentInteractionListener,
-        ContactsFragment.OnListFragmentInteractionListener,
-        NotificationsFragment.OnListFragmentInteractionListener,
+        LocationUpdatesFragment.OnLocationsUpdatesInteractionListener,
+        MyLocationsFragment.OnMyLocationInteractionListener,
+        ContactsFragment.OnContactInteractionListener,
+        NotificationsFragment.OnNotificationInteractionListener,
         OnMapReadyCallback {
 
     static final int ADD_LOCATION_REQUEST = 195;
@@ -88,6 +89,13 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             ContactsFragment contactsFragment = (ContactsFragment) fragment;
                             contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
+
+                            break;
+                        case R.id.nav_locations_list:
+                            fragment = new MyLocationsFragment();
+
+                            MyLocationsFragment myLocationsFragment = (MyLocationsFragment) fragment;
+                            myLocationsFragment.setLocationsLiveData(dataService.getMyLocations());
 
                             break;
                     }
@@ -178,16 +186,19 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLocationUpdatesFragmentInteraction(Location item) {
+    public void onLocationUpdatesFragmentInteraction(Location location) {
     }
 
     @Override
-    public void onContactFragmentInteraction(User item) {
+    public void onContactFragmentInteraction(User user) {
     }
 
-    public void onNotificationsFragmentInteraction(Contact item) {
+    public void onNotificationsFragmentInteraction(Contact contact) {
     }
 
+    @Override
+    public void onListFragmentInteraction(Location location) {
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

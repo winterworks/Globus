@@ -9,15 +9,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.ContactsFragment.OnListFragmentInteractionListener;
+import nl.bramwinter.globus.fragments.ContactsFragment.OnContactInteractionListener;
 import nl.bramwinter.globus.models.User;
 
 public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
 
     private final List<User> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnContactInteractionListener mListener;
 
-    public MyUserRecyclerViewAdapter(List<User> items, OnListFragmentInteractionListener listener) {
+    public MyUserRecyclerViewAdapter(List<User> items, OnContactInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }

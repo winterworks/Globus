@@ -15,13 +15,13 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.adaptors.MyLocationRecyclerViewAdapter;
+import nl.bramwinter.globus.adaptors.LocationsUpdateRecyclerViewAdapter;
 import nl.bramwinter.globus.models.Location;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnLocationsUpdatesInteractionListener}
  * interface.
  */
 public class LocationUpdatesFragment extends Fragment {
@@ -30,7 +30,7 @@ public class LocationUpdatesFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private OnLocationsUpdatesInteractionListener mListener;
 
     private MutableLiveData<List<Location>> locationsLiveData;
 
@@ -75,7 +75,7 @@ public class LocationUpdatesFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new LocationsUpdateRecyclerViewAdapter(locations, mListener));
             locationsLiveData.observe(this, locationsObserver);
         }
         return view;
@@ -88,11 +88,11 @@ public class LocationUpdatesFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnLocationsUpdatesInteractionListener) {
+            mListener = (OnLocationsUpdatesInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnMyLocationsFragmentInteractionListener");
         }
     }
 
@@ -112,8 +112,7 @@ public class LocationUpdatesFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
+    public interface OnLocationsUpdatesInteractionListener {
         void onLocationUpdatesFragmentInteraction(Location item);
     }
 }

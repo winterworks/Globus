@@ -7,12 +7,14 @@
     <string name="contacts">Contacts</string>
     <string name="notifications">Notifications</string>
     <string name="title_activity_maps">Map</string>
+    <string name="locations">Locations</string>
     <string name="description">Description</string>
 
     <string name="old_location">Old location</string>
     <string name="new_location">New location</string>
     <string name="user">User</string>
     <string name="user_moved_on_date">moved on: %1$s</string>
+    <string name="added_add">Added at: %1$s</string>
 
     <string name="name">Name</string>
     <string name="email">Email</string>

@@ -10,15 +10,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.NotificationsFragment.OnListFragmentInteractionListener;
+import nl.bramwinter.globus.fragments.NotificationsFragment.OnNotificationInteractionListener;
 import nl.bramwinter.globus.models.Contact;
 
 public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
 
     private final List<Contact> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnNotificationInteractionListener mListener;
 
-    public MyContactsRecyclerViewAdapter(List<Contact> items, OnListFragmentInteractionListener listener) {
+    public MyContactsRecyclerViewAdapter(List<Contact> items, OnNotificationInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }

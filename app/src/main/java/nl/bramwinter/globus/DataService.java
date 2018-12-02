@@ -20,9 +20,11 @@ public class DataService extends Service {
 
     private List<User> users = new ArrayList<>();
     private List<Location> locations = new ArrayList<>();
+    private List<Location> myLocations = new ArrayList<>();
     private List<Contact> contacts = new ArrayList<>();
     private MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
 
     public DataService() {
@@ -46,6 +48,10 @@ public class DataService extends Service {
         return contactsLiveData;
     }
 
+    public MutableLiveData<List<Location>> getMyLocations() {
+        return myLocationsLiveData;
+    }
+
     public void addLocation(Location location){
         locations.add(location);
         updateLocations();
@@ -63,6 +69,10 @@ public class DataService extends Service {
         contactsLiveData.setValue(contacts);
     }
 
+    public void updateMyLocations() {
+        myLocationsLiveData.setValue(myLocations);
+    }
+
     public void insertTestData(){
         users.add(new User("Andrea", "Anders", "a@a.com"));
         users.add(new User("Bernard", "Bolle", "b@b.com"));
@@ -74,6 +84,9 @@ public class DataService extends Service {
         locations.add(new Location(2.2, 3.3, new Date(), "Work", 1));
         locations.add(new Location(3.3, 4.4, new Date(), "Bar", 2));
         updateLocations();
+
+        myLocations = locations;
+        updateMyLocations();
 
         User a = new User("Andrea", "Anders", "a@a.com");
         User b = new User("Bernard", "Bolle", "b@b.com");
