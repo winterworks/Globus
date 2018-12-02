@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.MyLocationsFragment;
-import nl.bramwinter.globus.fragments.MyLocationsFragment.OnMyLocationInteractionListener;
-import nl.bramwinter.globus.fragments.dummy.DummyContent.DummyItem;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
 
@@ -19,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Location} and makes a call to the
  * specified {@link MyLocationsFragment.OnMyLocationInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
@@ -61,7 +59,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.location);
+                    mListener.OnMyLocationInteractionListener(holder.location);
                 }
             }
         });

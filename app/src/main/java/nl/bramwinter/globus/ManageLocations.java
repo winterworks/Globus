@@ -8,17 +8,14 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
@@ -28,9 +25,10 @@ public class ManageLocations extends AppCompatActivity {
     private Button buttonAddLocation;
     private Button buttonCancel;
     private EditText editLocationDescription;
-    private RadioGroup radioGroupSelectIcon;
     private TableLayout radioButtonsTable;
     private RadioGroup radioGroup;
+
+    private Location location;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -40,19 +38,21 @@ public class ManageLocations extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_locations);
 
+        buttonAddLocation = findViewById(R.id.buttonAdd);
+        buttonCancel = findViewById(R.id.buttonCancel);
+        radioButtonsTable = findViewById(R.id.radioButtonsTable);
+        radioGroup = findViewById(R.id.radioGroupSelectIcon);
+        editLocationDescription = findViewById(R.id.editLocationDescription);
+
         setupDataService();
         setupUi();
     }
 
     private void setupUi(){
-        buttonAddLocation = findViewById(R.id.buttonAdd);
-        buttonCancel = findViewById(R.id.buttonCancel);
         buttonCancel.setOnClickListener(v -> cancelActivity());
-        buttonAddLocation.setOnClickListener(v -> addLocation());
+        buttonAddLocation.setOnClickListener(v -> createNewLocation());
 
         int index = 0;
-        radioButtonsTable = findViewById(R.id.radioButtonsTable);
-        radioGroup = findViewById(R.id.radioGroupSelectIcon);
         for (Integer imageResourceId : MyProperties.iconMap) {
             TableRow row = new TableRow(this);
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
@@ -60,6 +60,7 @@ public class ManageLocations extends AppCompatActivity {
             row.setLayoutParams(lp);
             RadioButton radioButton = new RadioButton(this);
             radioButton.setId(index);
+
             radioGroup.addView(radioButton);
 
             // ImageView
@@ -72,6 +73,13 @@ public class ManageLocations extends AppCompatActivity {
         }
     }
 
+    private void showLocationInfoInUi(Location location) {
+        radioGroup.check(location.getIcon());
+        editLocationDescription.setText(location.getName());
+
+        buttonAddLocation.setText(R.string.update);
+    }
+
     private void cancelActivity() {
         Intent intent = getIntent();
         intent.putExtra("cancel", true);
@@ -79,13 +87,11 @@ public class ManageLocations extends AppCompatActivity {
         finish();
     }
 
-    private void addLocation(){
+    private void createNewLocation() {
         double latitude = getIntent().getLongExtra(MyProperties.latitude, 0);
         double longitude = getIntent().getLongExtra(MyProperties.longitude, 0);
-        editLocationDescription = findViewById(R.id.editLocationDescription);
-        radioGroupSelectIcon = findViewById(R.id.radioGroupSelectIcon);
         String description = editLocationDescription.getText().toString();
-        int iconId = radioGroupSelectIcon.getCheckedRadioButtonId();
+        int iconId = radioGroup.getCheckedRadioButtonId();
 
         Location location = new Location(latitude, longitude, new Date(), description, iconId);
         dataService.addLocation(location);
@@ -99,6 +105,10 @@ public class ManageLocations extends AppCompatActivity {
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
+                if (getIntent().hasExtra(MyProperties.locationId)) {
+                    location = dataService.getOneOfMyLocations(getIntent().getLongExtra(MyProperties.locationId, 0));
+                    showLocationInfoInUi(location);
+                }
             }
 
             public void onServiceDisconnected(ComponentName className) {
@@ -106,6 +116,5 @@ public class ManageLocations extends AppCompatActivity {
             }
         };
         bindService(new Intent(ManageLocations.this, DataService.class), dataServiceConnection, Context.BIND_AUTO_CREATE);
-
     }
 }

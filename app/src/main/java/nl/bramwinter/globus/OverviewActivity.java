@@ -34,7 +34,6 @@ import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
-import nl.bramwinter.globus.fragments.dummy.DummyContent;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
@@ -154,15 +153,23 @@ public class OverviewActivity extends AppCompatActivity implements
     private void setupUi(){
         buttonAddLocation = findViewById(R.id.FabAddLocation);
         buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
-        buttonAddLocation.setOnClickListener(v -> openManageLocationsActivity());
+        buttonAddLocation.setOnClickListener(v -> openCreateNewLocationsActivity());
     }
 
-    private void openManageLocationsActivity() {
+    private void openCreateNewLocationsActivity() {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
 
         LatLng location = mMap.getCameraPosition().target;
         intent.putExtra(MyProperties.latitude, location.latitude);
         intent.putExtra(MyProperties.longitude, location.longitude);
+
+        startActivityForResult(intent, ADD_LOCATION_REQUEST);
+    }
+
+    private void openManageLocationsActivity(Location location) {
+        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
+
+        intent.putExtra(MyProperties.locationId, location.getUuid());
 
         startActivityForResult(intent, ADD_LOCATION_REQUEST);
     }
@@ -197,7 +204,8 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onListFragmentInteraction(Location location) {
+    public void OnMyLocationInteractionListener(Location location) {
+        openManageLocationsActivity(location);
     }
 
     @Override

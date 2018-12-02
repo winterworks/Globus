@@ -52,6 +52,15 @@ public class DataService extends Service {
         return myLocationsLiveData;
     }
 
+    public Location getOneOfMyLocations(Long uuid) {
+        for (Location location : myLocations) {
+            if (location.getUuid() == uuid) {
+                return location;
+            }
+        }
+        return null;
+    }
+
     public void addLocation(Location location){
         locations.add(location);
         updateLocations();
@@ -83,6 +92,10 @@ public class DataService extends Service {
         locations.add(new Location(1.1, 2.2, new Date(), "Home", 0));
         locations.add(new Location(2.2, 3.3, new Date(), "Work", 1));
         locations.add(new Location(3.3, 4.4, new Date(), "Bar", 2));
+        // Set uuid's for testing
+        for (long i = 0; i < locations.size(); i++) {
+            locations.get((int) i).setUuid(i);
+        }
         updateLocations();
 
         myLocations = locations;

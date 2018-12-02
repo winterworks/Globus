@@ -114,6 +114,6 @@ public class MyLocationsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnMyLocationInteractionListener {
-        void onListFragmentInteraction(Location item);
+        void OnMyLocationInteractionListener(Location item);
     }
 }
