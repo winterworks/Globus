@@ -21,7 +21,7 @@ import nl.bramwinter.globus.models.Location;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnMyLocationInteractionListener}
+ * Activities containing this fragment MUST implement the {@link MyLocationsFragmentListener}
  * interface.
  */
 public class MyLocationsFragment extends Fragment {
@@ -30,7 +30,8 @@ public class MyLocationsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnMyLocationInteractionListener mListener;
+    private MyLocationsFragmentListener mListener;
+    private MyLocationsPressListener mPressListener;
 
     private MutableLiveData<List<Location>> locationsLiveData;
 
@@ -76,7 +77,7 @@ public class MyLocationsFragment extends Fragment {
             }
 //            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
 
-            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
+            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener, mPressListener));
             locationsLiveData.observe(this, locationsObserver);
         }
         return view;
@@ -89,11 +90,17 @@ public class MyLocationsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnMyLocationInteractionListener) {
-            mListener = (OnMyLocationInteractionListener) context;
+        if (context instanceof MyLocationsFragmentListener) {
+            mListener = (MyLocationsFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnMyLocationInteractionListener");
+                    + " must implement MyLocationsFragmentListener");
+        }
+        if (context instanceof MyLocationsPressListener) {
+            mPressListener = (MyLocationsPressListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement MyLocationsPressListener");
         }
     }
 
@@ -101,6 +108,7 @@ public class MyLocationsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mPressListener = null;
     }
 
     /**
@@ -113,7 +121,11 @@ public class MyLocationsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnMyLocationInteractionListener {
-        void OnMyLocationInteractionListener(Location item);
+    public interface MyLocationsFragmentListener {
+        void MyLocationsClickListener(Location location);
+    }
+
+    public interface MyLocationsPressListener {
+        void MyLocationsPressListener(Location location);
     }
 }

@@ -19,9 +19,9 @@ import nl.bramwinter.globus.util.MyProperties;
 public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<LocationsUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<Location> locations;
-    private final LocationUpdatesFragment.OnLocationsUpdatesInteractionListener mListener;
+    private final LocationUpdatesFragment.locationsFragmentListener mListener;
 
-    public LocationsUpdateRecyclerViewAdapter(List<Location> items, LocationUpdatesFragment.OnLocationsUpdatesInteractionListener listener) {
+    public LocationsUpdateRecyclerViewAdapter(List<Location> items, LocationUpdatesFragment.locationsFragmentListener listener) {
         locations = items;
         mListener = listener;
     }
@@ -53,7 +53,7 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.onLocationUpdatesFragmentInteraction(holder.location);
+                mListener.locationsClickListener(holder.location);
             }
         });
     }

@@ -8,7 +8,9 @@ import android.os.IBinder;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
@@ -18,10 +20,10 @@ public class DataService extends Service {
 
     protected Binder binder;
 
-    private List<User> users = new ArrayList<>();
-    private List<Location> locations = new ArrayList<>();
-    private List<Location> myLocations = new ArrayList<>();
-    private List<Contact> contacts = new ArrayList<>();
+    private HashMap<Long, User> users = new HashMap<>();
+    private HashMap<Long, Location> locations = new HashMap<>();
+    private HashMap<Long, Location> myLocations = new HashMap<>();
+    private HashMap<Long, Contact> contacts = new HashMap<>();
     private MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
@@ -48,53 +50,59 @@ public class DataService extends Service {
         return contactsLiveData;
     }
 
-    public MutableLiveData<List<Location>> getMyLocations() {
+    public MutableLiveData<List<Location>> getMyCurrentLocations() {
         return myLocationsLiveData;
     }
 
     public Location getOneOfMyLocations(Long uuid) {
-        for (Location location : myLocations) {
-            if (location.getUuid() == uuid) {
-                return location;
-            }
-        }
-        return null;
+        return myLocations.get(uuid);
     }
 
-    public void addLocation(Location location){
-        locations.add(location);
-        updateLocations();
+    public void editMyLocation(Location location) {
+        myLocations.remove(location.getUuid());
+        myLocations.put(location.getUuid(), location);
+        updateMyLocations();
+    }
+
+    public void addMyLocation(Location location) {
+        myLocations.put(location.getUuid(), location);
+        updateMyLocations();
+    }
+
+    public void removeMyLocation(Location location) {
+        myLocations.remove(location.getUuid());
+        updateMyLocations();
     }
 
     public void updateUsers() {
-        usersLiveData.setValue(users);
+        usersLiveData.setValue(new ArrayList<>(users.values()));
     }
 
     public void updateLocations() {
-        locationsLiveData.setValue(locations);
+        locationsLiveData.setValue(new ArrayList<>(locations.values()));
     }
 
     public void updateContacts() {
-        contactsLiveData.setValue(contacts);
+        contactsLiveData.setValue(new ArrayList<>(contacts.values()));
     }
 
     public void updateMyLocations() {
-        myLocationsLiveData.setValue(myLocations);
+        myLocationsLiveData.setValue(new ArrayList<>(myLocations.values()));
     }
 
     public void insertTestData(){
-        users.add(new User("Andrea", "Anders", "a@a.com"));
-        users.add(new User("Bernard", "Bolle", "b@b.com"));
-        users.add(new User("Candice", "Calen", "c@c.com"));
-        users.add(new User("Dana", "Dale", "d@d.com"));
+        users.put((long) 0, new User("Andrea", "Anders", "a@a.com"));
+        users.put((long) 1, new User("Bernard", "Bolle", "b@b.com"));
+        users.put((long) 2, new User("Candice", "Calen", "c@c.com"));
+        users.put((long) 3, new User("Dana", "Dale", "d@d.com"));
         updateUsers();
 
-        locations.add(new Location(1.1, 2.2, new Date(), "Home", 0));
-        locations.add(new Location(2.2, 3.3, new Date(), "Work", 1));
-        locations.add(new Location(3.3, 4.4, new Date(), "Bar", 2));
+        locations.put((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
+        locations.put((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
+        locations.put((long) 2, new Location(3.3, 4.4, new Date(), "Bar", 2));
         // Set uuid's for testing
         for (long i = 0; i < locations.size(); i++) {
-            locations.get((int) i).setUuid(i);
+            Objects.requireNonNull(locations.get(i)).setUuid(i);
         }
         updateLocations();
 
@@ -104,8 +112,8 @@ public class DataService extends Service {
         User a = new User("Andrea", "Anders", "a@a.com");
         User b = new User("Bernard", "Bolle", "b@b.com");
         User c = new User("Candice", "Calen", "c@c.com");
-        contacts.add(new Contact(a, b, false));
-        contacts.add(new Contact(b, c, true));
+        contacts.put((long) 0, new Contact(a, b, false));
+        contacts.put((long) 1, new Contact(b, c, true));
         updateContacts();
     }
 

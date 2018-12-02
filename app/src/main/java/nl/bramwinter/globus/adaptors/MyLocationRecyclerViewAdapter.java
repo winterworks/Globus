@@ -7,28 +7,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Location} and makes a call to the
- * specified {@link MyLocationsFragment.OnMyLocationInteractionListener}.
+ * specified {@link MyLocationsFragment.MyLocationsFragmentListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocationRecyclerViewAdapter.ViewHolder> {
 
     private final List<Location> locations;
-    private final MyLocationsFragment.OnMyLocationInteractionListener mListener;
+    private final MyLocationsFragment.MyLocationsFragmentListener mListener;
+    private final MyLocationsFragment.MyLocationsPressListener mLongListener;
 
-    public MyLocationRecyclerViewAdapter(List<Location> items, MyLocationsFragment.OnMyLocationInteractionListener listener) {
+    public MyLocationRecyclerViewAdapter(List<Location> items, MyLocationsFragment.MyLocationsFragmentListener listener,
+                                         MyLocationsFragment.MyLocationsPressListener longListener) {
         locations = items;
         mListener = listener;
+        mLongListener = longListener;
     }
 
     @Override
@@ -59,8 +62,19 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.OnMyLocationInteractionListener(holder.location);
+                    mListener.MyLocationsClickListener(holder.location);
                 }
+            }
+        });
+
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (null != mLongListener) {
+                    mLongListener.MyLocationsPressListener(holder.location);
+                    return true;
+                }
+                return false;
             }
         });
     }

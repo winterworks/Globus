@@ -21,7 +21,7 @@ import nl.bramwinter.globus.models.Location;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnLocationsUpdatesInteractionListener}
+ * Activities containing this fragment MUST implement the {@link locationsFragmentListener}
  * interface.
  */
 public class LocationUpdatesFragment extends Fragment {
@@ -30,7 +30,7 @@ public class LocationUpdatesFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnLocationsUpdatesInteractionListener mListener;
+    private locationsFragmentListener mListener;
 
     private MutableLiveData<List<Location>> locationsLiveData;
 
@@ -88,8 +88,8 @@ public class LocationUpdatesFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnLocationsUpdatesInteractionListener) {
-            mListener = (OnLocationsUpdatesInteractionListener) context;
+        if (context instanceof locationsFragmentListener) {
+            mListener = (locationsFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnMyLocationsFragmentInteractionListener");
@@ -112,7 +112,7 @@ public class LocationUpdatesFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnLocationsUpdatesInteractionListener {
-        void onLocationUpdatesFragmentInteraction(Location item);
+    public interface locationsFragmentListener {
+        void locationsClickListener(Location location);
     }
 }

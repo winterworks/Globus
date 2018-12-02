@@ -40,13 +40,15 @@ import nl.bramwinter.globus.models.User;
 import nl.bramwinter.globus.util.MyProperties;
 
 public class OverviewActivity extends AppCompatActivity implements
-        LocationUpdatesFragment.OnLocationsUpdatesInteractionListener,
-        MyLocationsFragment.OnMyLocationInteractionListener,
-        ContactsFragment.OnContactInteractionListener,
-        NotificationsFragment.OnNotificationInteractionListener,
+        LocationUpdatesFragment.locationsFragmentListener,
+        MyLocationsFragment.MyLocationsFragmentListener,
+        MyLocationsFragment.MyLocationsPressListener,
+        ContactsFragment.ContactFragmentListener,
+        NotificationsFragment.NotificationFragmentListener,
         OnMapReadyCallback {
 
     static final int ADD_LOCATION_REQUEST = 195;
+    static final int EDIT_LOCATION_REQUEST = 196;
     private static final String TAG = "Globus Map";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
     BottomNavigationView buttonNavigationUpdate;
@@ -94,7 +96,7 @@ public class OverviewActivity extends AppCompatActivity implements
                             fragment = new MyLocationsFragment();
 
                             MyLocationsFragment myLocationsFragment = (MyLocationsFragment) fragment;
-                            myLocationsFragment.setLocationsLiveData(dataService.getMyLocations());
+                            myLocationsFragment.setLocationsLiveData(dataService.getMyCurrentLocations());
 
                             break;
                     }
@@ -168,10 +170,9 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void openManageLocationsActivity(Location location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
-
         intent.putExtra(MyProperties.locationId, location.getUuid());
 
-        startActivityForResult(intent, ADD_LOCATION_REQUEST);
+        startActivityForResult(intent, EDIT_LOCATION_REQUEST);
     }
 
     private void moveCamera(LatLng latLng, int zoom) {
@@ -193,19 +194,25 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLocationUpdatesFragmentInteraction(Location location) {
+    public void locationsClickListener(Location location) {
     }
 
     @Override
-    public void onContactFragmentInteraction(User user) {
+    public void ContactClickListener(User user) {
     }
 
-    public void onNotificationsFragmentInteraction(Contact contact) {
+    public void NotificationClickListener(Contact contact) {
     }
 
     @Override
-    public void OnMyLocationInteractionListener(Location location) {
+    public void MyLocationsClickListener(Location location) {
         openManageLocationsActivity(location);
+    }
+
+    @Override
+    public void MyLocationsPressListener(Location location) {
+        //TODO add popup dialog before deleting location
+        dataService.removeMyLocation(location);
     }
 
     @Override
@@ -263,6 +270,10 @@ public class OverviewActivity extends AppCompatActivity implements
                 //TODO show success message
             }
         }
+        if (requestCode == EDIT_LOCATION_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                //TODO show success message
+            }
+        }
     }
-
 }

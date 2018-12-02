@@ -10,15 +10,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.NotificationsFragment.OnNotificationInteractionListener;
+import nl.bramwinter.globus.fragments.NotificationsFragment;
+import nl.bramwinter.globus.fragments.NotificationsFragment.NotificationFragmentListener;
 import nl.bramwinter.globus.models.Contact;
 
 public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
 
     private final List<Contact> mValues;
-    private final OnNotificationInteractionListener mListener;
+    private final NotificationsFragment.NotificationFragmentListener mListener;
 
-    public MyContactsRecyclerViewAdapter(List<Contact> items, OnNotificationInteractionListener listener) {
+    public MyContactsRecyclerViewAdapter(List<Contact> items, NotificationFragmentListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -41,7 +42,7 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.onNotificationsFragmentInteraction(holder.mItem);
+                mListener.NotificationClickListener(holder.mItem);
             }
         });
     }

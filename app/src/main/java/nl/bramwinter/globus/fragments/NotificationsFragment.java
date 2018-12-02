@@ -21,7 +21,7 @@ import nl.bramwinter.globus.models.Contact;
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnNotificationInteractionListener}
+ * Activities containing this fragment MUST implement the {@link NotificationFragmentListener}
  * interface.
  */
 public class NotificationsFragment extends Fragment {
@@ -30,7 +30,7 @@ public class NotificationsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnNotificationInteractionListener mListener;
+    private NotificationFragmentListener mListener;
 
     private MutableLiveData<List<Contact>> contactsLiveData;
 
@@ -88,11 +88,11 @@ public class NotificationsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnNotificationInteractionListener) {
-            mListener = (OnNotificationInteractionListener) context;
+        if (context instanceof NotificationFragmentListener) {
+            mListener = (NotificationFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnNotificationInteractionListener");
+                    + " must implement NotificationFragmentListener");
         }
     }
 
@@ -112,7 +112,7 @@ public class NotificationsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnNotificationInteractionListener {
-        void onNotificationsFragmentInteraction(Contact item);
+    public interface NotificationFragmentListener {
+        void NotificationClickListener(Contact contact);
     }
 }
