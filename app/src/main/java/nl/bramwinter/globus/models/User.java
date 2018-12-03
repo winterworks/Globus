@@ -5,35 +5,18 @@ import java.util.List;
 public class User {
 
     private Long uuid;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
     private List<Location> locations;
     private List<Contact> contacts;
 
-    public User(Long uuid, String firstName, String lastName, String email, List<Location> locations, List<Contact> contacts) {
+
+    public User(Long uuid, String name, String email, List<Location> locations, List<Contact> contacts) {
         this.uuid = uuid;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
         this.email = email;
         this.locations = locations;
         this.contacts = contacts;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -52,10 +35,6 @@ public class User {
         this.uuid = uuid;
     }
 
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
-
     public List<Location> getLocations() {
         return locations;
     }
@@ -71,4 +50,8 @@ public class User {
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
+
+    public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
 }
