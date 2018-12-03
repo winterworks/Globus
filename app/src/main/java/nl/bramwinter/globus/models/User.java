@@ -1,22 +1,29 @@
 package nl.bramwinter.globus.models;
 
-import java.util.List;
+import android.util.LongSparseArray;
 
 public class User {
 
     private Long uuid;
     private String name;
     private String email;
-    private List<Location> locations;
-    private List<Contact> contacts;
+    private LongSparseArray<Location> locations;
+    private LongSparseArray<Contact> contacts;
 
-
-    public User(Long uuid, String name, String email, List<Location> locations, List<Contact> contacts) {
+    public User(Long uuid, String name, String email, LongSparseArray<Location> locations, LongSparseArray<Contact> contacts) {
         this.uuid = uuid;
         this.name = name;
         this.email = email;
         this.locations = locations;
         this.contacts = contacts;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -36,22 +43,19 @@ public class User {
     }
 
     public List<Location> getLocations() {
+    public LongSparseArray<Location> getLocations() {
         return locations;
     }
 
-    public void setLocations(List<Location> locations) {
+    public void setLocations(LongSparseArray<Location> locations) {
         this.locations = locations;
     }
 
-    public List<Contact> getContacts() {
+    public LongSparseArray<Contact> getContacts() {
         return contacts;
     }
 
-    public void setContacts(List<Contact> contacts) {
+    public void setContacts(LongSparseArray<Contact> contacts) {
         this.contacts = contacts;
     }
-
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
 }
