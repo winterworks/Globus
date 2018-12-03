@@ -25,6 +25,7 @@ public class DataService extends Service {
 
     protected Binder binder;
 
+    private FirebaseFirestore db;
     private User currentUser;
     private HashMap<Long, User> users = new HashMap<>();
     private HashMap<Long, Location> locations = new HashMap<>();
@@ -34,13 +35,13 @@ public class DataService extends Service {
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
 
     public DataService() {
+        db = FirebaseFirestore.getInstance();
         getCurrentUser();
 
         binder = new DataServiceBinder();
     }
 
     private void getCurrentUser(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference documentReference = db.collection("users").document("w4Q75XXFDDdqCrraH5rO36R08Cl2");
 
         documentReference.get().addOnCompleteListener(task -> {
@@ -95,7 +96,7 @@ public class DataService extends Service {
         return myLocationsLiveData;
     }
 
-    public Location getOneOfMyLocations(Long uuid) {
+    public Location getOneOfMyLocations(String uuid) {
         return currentUser.getLocations().get(uuid);
     }
 
@@ -116,6 +117,8 @@ public class DataService extends Service {
 
     public void removeMyLocation(Location location) {
         currentUser.getLocations().remove(location.getUuid());
+        db.collection("users").document("w4Q75XXFDDdqCrraH5rO36R08Cl2").collection("locations").document(location.getUuid()).delete();
+
         updateMyLocations();
     }
 
