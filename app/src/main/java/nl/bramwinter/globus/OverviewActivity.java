@@ -8,9 +8,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -34,17 +32,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -174,6 +169,8 @@ public class OverviewActivity extends AppCompatActivity implements
                 }
             }
         });
+
+
     }
 
     public void getCurrentDeviceLocation() {
@@ -280,8 +277,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
         mMap = googleMap;
 
@@ -291,34 +287,48 @@ public class OverviewActivity extends AppCompatActivity implements
                 return;
             }
             mMap.setMyLocationEnabled(true);
+            showLocationsOnMap();
 
-            db.collection("users").document(user.getUid()).collection("locations")
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if(task.isSuccessful()) {
-                            for (DocumentSnapshot document : task.getResult()) {
-                                Location location = document.toObject(Location.class);
 
-                                int icon = 0;
-
-                                if (location != null) {
-                                    switch (location.getIcon()) {
-                                        case 0:
-                                            icon = R.drawable.ic_home_black_24dp;
-                                            break;
-                                        case 1:
-                                            icon = R.drawable.ic_location_city_black_24dp;
-                                            break;
-                                        case 2:
-                                            icon = R.drawable.ic_casino_black_24dp;
-                                            break;
-                                    }
-                                }
-                                addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
-                            }
-                        }
-                    });
         }
+    }
+
+    private void showLocationsOnMap() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users").document(user.getUid()).collection("locations")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            Location location = document.toObject(Location.class);
+
+                            int icon = 0;
+
+                            if (location != null) {
+                                switch (location.getIcon()) {
+                                    case 0:
+                                        icon = R.drawable.ic_home_black_24dp;
+                                        break;
+                                    case 1:
+                                        icon = R.drawable.ic_location_city_black_24dp;
+                                        break;
+                                    case 2:
+                                        icon = R.drawable.ic_casino_black_24dp;
+                                        break;
+                                }
+                            }
+                            addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showLocationsOnMap();
     }
 
     private void getMapPermissions() {
