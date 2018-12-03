@@ -27,7 +27,7 @@ public class Location {
             this.longitude = (double) map.get("longitude");
             this.addedAt = (Date) map.get("addedAt");
             this.name = (String) map.get("name");
-            this.icon = (Integer) map.get("icon");
+            this.icon = Integer.valueOf(String.valueOf(map.get("icon")));
 
         } catch (Exception e){
 

@@ -138,7 +138,8 @@ public class ManageLocations extends AppCompatActivity {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
                 if (getIntent().hasExtra(MyProperties.locationId)) {
-                    location = dataService.getOneOfMyLocations(getIntent().getLongExtra(MyProperties.locationId, 0));
+                    Intent intent = getIntent();
+                    location = dataService.getOneOfMyLocations(getIntent().getStringExtra(MyProperties.locationId));
                     showLocationInfoInUi(location);
                 }
             }
