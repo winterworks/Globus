@@ -2,30 +2,20 @@ package nl.bramwinter.globus.models;
 
 public class Contact {
 
-    private User contactor;
-    private User contacted;
+    private User contact;
     private boolean accepted;
 
-    public Contact(User contactor, User contacted, boolean accepted) {
-        this.contactor = contactor;
-        this.contacted = contacted;
+    public Contact(User contact, boolean accepted) {
+        this.contact = contact;
         this.accepted = accepted;
     }
 
-    public User getContactor() {
-        return contactor;
+    public User getContact() {
+        return contact;
     }
 
-    public void setContactor(User contactor) {
-        this.contactor = contactor;
-    }
-
-    public User getContacted() {
-        return contacted;
-    }
-
-    public void setContacted(User contacted) {
-        this.contacted = contacted;
+    public void setContact(User contact) {
+        this.contact = contact;
     }
 
     public boolean isAccepted() {

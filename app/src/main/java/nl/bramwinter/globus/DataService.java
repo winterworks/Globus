@@ -91,30 +91,30 @@ public class DataService extends Service {
     }
 
     public void insertTestData(){
-        users.put((long) 0, new User("Andrea", "Anders", "a@a.com"));
-        users.put((long) 1, new User("Bernard", "Bolle", "b@b.com"));
-        users.put((long) 2, new User("Candice", "Calen", "c@c.com"));
-        users.put((long) 3, new User("Dana", "Dale", "d@d.com"));
-        updateUsers();
-
-        locations.put((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
-        locations.put((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
-        locations.put((long) 2, new Location(3.3, 4.4, new Date(), "Bar", 2));
-        // Set uuid's for testing
-        for (long i = 0; i < locations.size(); i++) {
-            Objects.requireNonNull(locations.get(i)).setUuid(i);
-        }
-        updateLocations();
-
-        myLocations = locations;
-        updateMyLocations();
-
-        User a = new User("Andrea", "Anders", "a@a.com");
-        User b = new User("Bernard", "Bolle", "b@b.com");
-        User c = new User("Candice", "Calen", "c@c.com");
-        contacts.put((long) 0, new Contact(a, b, false));
-        contacts.put((long) 1, new Contact(b, c, true));
-        updateContacts();
+//        users.put((long) 0, new User("Andrea", "Anders", "a@a.com"));
+//        users.put((long) 1, new User("Bernard", "Bolle", "b@b.com"));
+//        users.put((long) 2, new User("Candice", "Calen", "c@c.com"));
+//        users.put((long) 3, new User("Dana", "Dale", "d@d.com"));
+//        updateUsers();
+//
+//        locations.put((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
+//        locations.put((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
+//        locations.put((long) 2, new Location(3.3, 4.4, new Date(), "Bar", 2));
+//        // Set uuid's for testing
+//        for (long i = 0; i < locations.size(); i++) {
+//            Objects.requireNonNull(locations.get(i)).setUuid(i);
+//        }
+//        updateLocations();
+//
+//        myLocations = locations;
+//        updateMyLocations();
+//
+//        User a = new User("Andrea", "Anders", "a@a.com");
+//        User b = new User("Bernard", "Bolle", "b@b.com");
+//        User c = new User("Candice", "Calen", "c@c.com");
+//        contacts.put((long) 0, new Contact(a, b, false));
+//        contacts.put((long) 1, new Contact(b, c, true));
+//        updateContacts();
     }
 
     class DataServiceBinder extends Binder {

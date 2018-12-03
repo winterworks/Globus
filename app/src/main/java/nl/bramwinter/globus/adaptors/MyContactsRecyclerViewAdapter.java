@@ -34,7 +34,7 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.nameView.setText(mValues.get(position).getContactor().getFullName());
+//        holder.nameView.setText(mValues.get(position).getContactor().getFullName());
         holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest());
         holder.buttonReject.setOnClickListener(v -> RejectContactRequest());
 
