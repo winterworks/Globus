@@ -41,32 +41,35 @@ public class DataService extends Service {
 
     private void getCurrentUser(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         DocumentReference documentReference = db.collection("users").document("w4Q75XXFDDdqCrraH5rO36R08Cl2");
 
         documentReference.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    documentReference.collection("locations").get().addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-
-                            HashMap<String, Location> locations = new HashMap<>();
-                            for (DocumentSnapshot document1 : task1.getResult()) {
-                                Location location = new Location(document1.getData());
-                                location.setUuid(document1.getId());
-                                locations.put(document1.getId(), location);
-                            }
-
-                            currentUser = new User(document.getId(), document.getString("name"), document.getString("email"), locations, new HashMap<>());
-                            updateMyLocations();
-                        }
-                    });
+                    setDataFromFireBase(documentReference, document);
                 } else {
                     Log.d("Globus", "User not found");
                 }
             } else {
                 Log.d("Globus", "Exception");
+            }
+        });
+    }
+
+    private void setDataFromFireBase(DocumentReference documentReference, DocumentSnapshot document) {
+        documentReference.collection("locations").get().addOnCompleteListener(task1 -> {
+            if (task1.isSuccessful()) {
+
+                HashMap<String, Location> locations = new HashMap<>();
+                for (DocumentSnapshot document1 : task1.getResult()) {
+                    Location location = new Location(document1.getData());
+                    location.setUuid(document1.getId());
+                    locations.put(document1.getId(), location);
+                }
+
+                currentUser = new User(document.getId(), document.getString("name"), document.getString("email"), locations, new HashMap<>());
+                updateMyLocations();
             }
         });
     }
