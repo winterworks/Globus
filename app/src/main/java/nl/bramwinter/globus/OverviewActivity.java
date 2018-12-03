@@ -9,7 +9,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -30,23 +32,30 @@ import com.google.android.gms.tasks.Task;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
+import nl.bramwinter.globus.util.MyProperties;
 
 public class OverviewActivity extends AppCompatActivity implements
-        LocationUpdatesFragment.OnListFragmentInteractionListener,
-        ContactsFragment.OnListFragmentInteractionListener,
-        NotificationsFragment.OnListFragmentInteractionListener,
+        LocationUpdatesFragment.locationsFragmentListener,
+        MyLocationsFragment.MyLocationsFragmentListener,
+        MyLocationsFragment.MyLocationsPressListener,
+        ContactsFragment.ContactFragmentListener,
+        NotificationsFragment.NotificationFragmentListener,
         OnMapReadyCallback {
 
+    static final int ADD_LOCATION_REQUEST = 195;
+    static final int EDIT_LOCATION_REQUEST = 196;
     private static final String TAG = "Globus Map";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
     BottomNavigationView buttonNavigationUpdate;
     GoogleMap mMap;
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
+    private FloatingActionButton buttonAddLocation;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -67,7 +76,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             LocationUpdatesFragment locationUpdatesFragment = (LocationUpdatesFragment) fragment;
                             locationUpdatesFragment.setLocationsLiveData(dataService.getCurrentLocations());
-                            dataService.updateLocations();
 
                             break;
                         case R.id.nav_notifications:
@@ -75,7 +83,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
                             notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
-                            dataService.updateContacts();
 
                             break;
                         case R.id.nav_contact_list:
@@ -83,7 +90,13 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             ContactsFragment contactsFragment = (ContactsFragment) fragment;
                             contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
-                            dataService.updateUsers();
+
+                            break;
+                        case R.id.nav_locations_list:
+                            fragment = new MyLocationsFragment();
+
+                            MyLocationsFragment myLocationsFragment = (MyLocationsFragment) fragment;
+                            myLocationsFragment.setLocationsLiveData(dataService.getMyCurrentLocations());
 
                             break;
                     }
@@ -106,7 +119,7 @@ public class OverviewActivity extends AppCompatActivity implements
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         setupDataService();
-        bindService(new Intent(OverviewActivity.this, DataService.class), dataServiceConnection, Context.BIND_AUTO_CREATE);
+        setupUi();
 
         getMapPermissions();
         SupportMapFragment fragment = new SupportMapFragment();
@@ -139,6 +152,29 @@ public class OverviewActivity extends AppCompatActivity implements
         }
     }
 
+    private void setupUi(){
+        buttonAddLocation = findViewById(R.id.FabAddLocation);
+        buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
+        buttonAddLocation.setOnClickListener(v -> openCreateNewLocationsActivity());
+    }
+
+    private void openCreateNewLocationsActivity() {
+        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
+
+        LatLng location = mMap.getCameraPosition().target;
+        intent.putExtra(MyProperties.latitude, location.latitude);
+        intent.putExtra(MyProperties.longitude, location.longitude);
+
+        startActivityForResult(intent, ADD_LOCATION_REQUEST);
+    }
+
+    private void openManageLocationsActivity(Location location) {
+        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
+        intent.putExtra(MyProperties.locationId, location.getUuid());
+
+        startActivityForResult(intent, EDIT_LOCATION_REQUEST);
+    }
+
     private void moveCamera(LatLng latLng, int zoom) {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
@@ -147,25 +183,37 @@ public class OverviewActivity extends AppCompatActivity implements
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
+                dataService.insertTestData();
             }
 
             public void onServiceDisconnected(ComponentName className) {
                 dataService = null;
             }
         };
+        bindService(new Intent(OverviewActivity.this, DataService.class), dataServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    public void onLocationUpdatesFragmentInteraction(Location item) {
+    public void locationsClickListener(Location location) {
     }
 
     @Override
-    public void onContactFragmentInteraction(User item) {
+    public void ContactClickListener(User user) {
     }
 
-    public void onNotificationsFragmentInteraction(Contact item) {
+    public void NotificationClickListener(Contact contact) {
     }
 
+    @Override
+    public void MyLocationsClickListener(Location location) {
+        openManageLocationsActivity(location);
+    }
+
+    @Override
+    public void MyLocationsPressListener(Location location) {
+        //TODO add popup dialog before deleting location
+        dataService.removeMyLocation(location);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -214,4 +262,18 @@ public class OverviewActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_LOCATION_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                //TODO show success message
+            }
+        }
+        if (requestCode == EDIT_LOCATION_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                //TODO show success message
+            }
+        }
+    }
 }
