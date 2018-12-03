@@ -101,8 +101,6 @@ public class ManageLocations extends AppCompatActivity {
         int iconId = radioGroup.getCheckedRadioButtonId();
 
         Location location = new Location(latitude, longitude, new Date(), description, iconId);
-        // TODO this is a job for the database
-        location.setUuid(ThreadLocalRandom.current().nextLong());
         dataService.addMyLocation(location);
 
         Intent intent = getIntent();
@@ -115,8 +113,6 @@ public class ManageLocations extends AppCompatActivity {
         Location newLocation = new Location(location.getLatitude(), location.getLongitude(), new Date(), location.getName(), location.getIcon());
         newLocation.setName(editLocationDescription.getText().toString());
         newLocation.setIcon(radioGroup.getCheckedRadioButtonId());
-        // TODO this is a job for the database
-        newLocation.setUuid(ThreadLocalRandom.current().nextLong());
 
         dataService.addMyLocation(newLocation);
 

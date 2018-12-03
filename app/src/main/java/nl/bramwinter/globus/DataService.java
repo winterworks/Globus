@@ -5,12 +5,17 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.LongSparseArray;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
@@ -20,7 +25,7 @@ public class DataService extends Service {
 
     protected Binder binder;
 
-    private User user;
+    private User currentUser;
     private HashMap<Long, User> users = new HashMap<>();
     private HashMap<Long, Location> locations = new HashMap<>();
     private MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
@@ -29,7 +34,41 @@ public class DataService extends Service {
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
 
     public DataService() {
+        getCurrentUser();
+
         binder = new DataServiceBinder();
+    }
+
+    private void getCurrentUser(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference documentReference = db.collection("users").document("w4Q75XXFDDdqCrraH5rO36R08Cl2");
+
+        documentReference.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    documentReference.collection("locations").get().addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+
+                            HashMap<String, Location> locations = new HashMap<>();
+                            for (DocumentSnapshot document1 : task1.getResult()) {
+                                Location location = new Location(document1.getData());
+                                location.setUuid(document1.getId());
+                                locations.put(document1.getId(), location);
+                            }
+
+                            currentUser = new User(document.getId(), document.getString("name"), document.getString("email"), locations, new HashMap<>());
+                            updateMyLocations();
+                        }
+                    });
+                } else {
+                    Log.d("Globus", "User not found");
+                }
+            } else {
+                Log.d("Globus", "Exception");
+            }
+        });
     }
 
     @Override
@@ -54,22 +93,26 @@ public class DataService extends Service {
     }
 
     public Location getOneOfMyLocations(Long uuid) {
-        return user.getLocations().get(uuid);
+        return currentUser.getLocations().get(uuid);
     }
 
     public void editMyLocation(Location location) {
-        user.getLocations().remove(location.getUuid());
-        user.getLocations().put(location.getUuid(), location);
+        currentUser.getLocations().remove(location.getUuid());
+        currentUser.getLocations().put(location.getUuid(), location);
         updateMyLocations();
     }
 
     public void addMyLocation(Location location) {
-        user.getLocations().put(location.getUuid(), location);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String id = db.collection("users").document(currentUser.getUuid()).collection("locations").document().getId();
+        db.collection("users").document(currentUser.getUuid()).collection("locations").document(id).set(location);
+
+        currentUser.getLocations().put(id, location);
         updateMyLocations();
     }
 
     public void removeMyLocation(Location location) {
-        user.getLocations().remove(location.getUuid());
+        currentUser.getLocations().remove(location.getUuid());
         updateMyLocations();
     }
 
@@ -82,21 +125,15 @@ public class DataService extends Service {
     }
 
     public void updateContacts() {
-        contactsLiveData.setValue(asList(user.getContacts()));
+        contactsLiveData.setValue(new ArrayList<>(currentUser.getContacts().values()));
     }
 
     public void updateMyLocations() {
-        myLocationsLiveData.setValue(asList(user.getLocations()));
+        myLocationsLiveData.setValue(new ArrayList<>(currentUser.getLocations().values()));
     }
 
     public void insertTestData(){
-        user = new User((long)0, "Anders", "a@a.com",
-                new LongSparseArray<Location>(),
-                new LongSparseArray<Contact>()
-        );
-        user.getLocations().append((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
-        user.getLocations().append((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
-        updateMyLocations();
+
     }
 
     class DataServiceBinder extends Binder {

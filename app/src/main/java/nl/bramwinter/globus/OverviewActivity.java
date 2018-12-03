@@ -142,50 +142,29 @@ public class OverviewActivity extends AppCompatActivity implements
         fragment.getMapAsync(OverviewActivity.this);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
-        DocumentReference documentReference = db.collection("users").document(user.getUid());
-
-        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-
-                    if (document.exists()) {
-                        Log.d("Celik", "User" + user.getEmail() + " exists");
-                    } else {
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("name", user.getDisplayName());
-                        data.put("email", user.getEmail());
-
-                        db.collection("users").document(user.getUid()).set(data);
-                    }
-                } else {
-                    Log.d("Celik", "Exception");
-                }
-            }
-        });
-
-//        CollectionReference collectionReference = db.collection("users");
-//        collectionReference.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 //
-//                for (DocumentSnapshot document : task.getResult()) {
-//                    String email = document.getString("email");
+//        DocumentReference documentReference = db.collection("users").document(user.getUid());
 //
-//                    if (email.equals(user.getEmail())) {
-//                        Log.d("Celik", "User " + user.getEmail() + " exists.");
+//        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if(task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//
+//                    if (document.exists()) {
+//                        Log.d("Celik", "User" + user.getEmail() + " exists");
 //                    } else {
 //                        Map<String, Object> data = new HashMap<>();
 //                        data.put("name", user.getDisplayName());
 //                        data.put("email", user.getEmail());
-//                        db.collection("users").add(data)
-//                                .addOnSuccessListener(documentReference -> Log.d("Celik", "DocumentSnapshot written with ID: " + documentReference))
-//                                .addOnFailureListener(e -> Log.d("Celik", "Error adding document", e));
+//
+//                        db.collection("users").document(user.getUid()).set(data);
 //                    }
+//                } else {
+//                    Log.d("Celik", "Exception");
 //                }
 //            }
 //        });

@@ -2,21 +2,21 @@ package nl.bramwinter.globus.models;
 
 public class Contact {
 
-    private Long uuid;
+    private String uuid;
     private User contact;
     private boolean accepted;
 
-    public Contact(Long uuid, User contact, boolean accepted) {
+    public Contact(String uuid, User contact, boolean accepted) {
         this.uuid = uuid;
         this.contact = contact;
         this.accepted = accepted;
     }
 
-    public Long getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(Long uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
