@@ -40,9 +40,6 @@
         <activity android:name=".OverviewActivity">
 
         </activity>
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
 
         <service
             android:name=".DataService"
