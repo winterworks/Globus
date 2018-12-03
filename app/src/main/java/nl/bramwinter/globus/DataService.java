@@ -118,6 +118,7 @@ public class DataService extends Service {
         location.setUuid(id);
         currentUser.getLocations().put(id, location);
         updateMyLocations();
+
     }
 
     public void removeMyLocation(Location location) {

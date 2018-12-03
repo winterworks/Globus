@@ -6,6 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -26,7 +31,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +44,7 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +75,7 @@ public class OverviewActivity extends AppCompatActivity implements
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
     private FloatingActionButton buttonAddLocation;
+
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -163,7 +174,6 @@ public class OverviewActivity extends AppCompatActivity implements
                 }
             }
         });
-
     }
 
     public void getCurrentDeviceLocation() {
@@ -188,28 +198,21 @@ public class OverviewActivity extends AppCompatActivity implements
         }
     }
 
-    private boolean checkEmailAlreadyExist(String email) {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        final boolean[] exist = new boolean[1];
-        mAuth.fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(task -> exist[0] = task.getResult().getSignInMethods().isEmpty());
-        return exist[0];
+    private void addMarker(double latitude, double longtitude, int drawable, String title) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .title(title)
+                .position(new LatLng(latitude, longtitude))
+                .icon(bitmapDescriptorFromVector(getApplicationContext(), drawable));
+        mMap.addMarker(markerOptions);
     }
 
-    public void checkEmail(String email, FirebaseAuth mAuth) {
-        mAuth.fetchSignInMethodsForEmail(mAuth.getCurrentUser().getEmail())
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                        boolean check = !task.getResult().getSignInMethods().isEmpty();
-                        Log.d("Celik", String.valueOf(check));
-                        if (check) {
-                            Log.d("Celik", "User " + mAuth.getCurrentUser().getEmail() + " already exist");
-                        } else {
-
-                        }
-                    }
-                });
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void setupUi(){
@@ -277,6 +280,9 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         mMap = googleMap;
 
         if (mLocationPermissionGranted) {
@@ -285,6 +291,33 @@ public class OverviewActivity extends AppCompatActivity implements
                 return;
             }
             mMap.setMyLocationEnabled(true);
+
+            db.collection("users").document(user.getUid()).collection("locations")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Location location = document.toObject(Location.class);
+
+                                int icon = 0;
+
+                                if (location != null) {
+                                    switch (location.getIcon()) {
+                                        case 0:
+                                            icon = R.drawable.ic_home_black_24dp;
+                                            break;
+                                        case 1:
+                                            icon = R.drawable.ic_location_city_black_24dp;
+                                            break;
+                                        case 2:
+                                            icon = R.drawable.ic_casino_black_24dp;
+                                            break;
+                                    }
+                                }
+                                addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
+                            }
+                        }
+                    });
         }
     }
 
