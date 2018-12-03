@@ -6,11 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".OverviewActivity">
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/FabAddLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="17dp"
+        android:layout_marginBottom="70dp"
+        android:clickable="true"
+        app:srcCompat="@color/colorAccent" />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/buttom_navigation_view" />
+        android:layout_above="@+id/buttom_navigation_view" >
+
+    </FrameLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/buttom_navigation_view"

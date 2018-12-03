@@ -12,41 +12,34 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.MyLocationsFragment;
+import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link Location} and makes a call to the
- * specified {@link MyLocationsFragment.MyLocationsFragmentListener}.
- * TODO: Replace the implementation with code for your data type.
- */
-public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocationRecyclerViewAdapter.ViewHolder> {
+public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<LocationsUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<Location> locations;
-    private final MyLocationsFragment.MyLocationsFragmentListener mListener;
-    private final MyLocationsFragment.MyLocationsPressListener mLongListener;
+    private final LocationUpdatesFragment.locationsFragmentListener mListener;
 
-    public MyLocationRecyclerViewAdapter(List<Location> items, MyLocationsFragment.MyLocationsFragmentListener listener,
-                                         MyLocationsFragment.MyLocationsPressListener longListener) {
+    public LocationsUpdateRecyclerViewAdapter(List<Location> items, LocationUpdatesFragment.locationsFragmentListener listener) {
         locations = items;
         mListener = listener;
-        mLongListener = longListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_my_locations, parent, false);
+                .inflate(R.layout.fragment_location, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.location = locations.get(position);
-        String titleText = locations.get(position).getName();
+        String titleText = locations.get(position).getName() + " → " + locations.get(position).getName();
         holder.textTitle.setText(titleText);
-
+        // TODO get the username from the user
+        holder.textUsername.setText("user");
         Integer iconResource = locations.get(position).getIcon();
         if (iconResource != null) {
             holder.imageViewIcon.setImageResource(MyProperties.iconMap.get(iconResource));
@@ -54,27 +47,13 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");
         String readableDate = formatter.format(locations.get(position).getAddedAt());
-        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.added_add), readableDate));
+        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.user_moved_on_date), readableDate));
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.MyLocationsClickListener(holder.location);
-                }
-            }
-        });
-
-        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                if (null != mLongListener) {
-                    mLongListener.MyLocationsPressListener(holder.location);
-                    return true;
-                }
-                return false;
+        holder.mView.setOnClickListener(v -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.locationsClickListener(holder.location);
             }
         });
     }
@@ -88,6 +67,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
         final View mView;
         final TextView textTitle;
         final TextView textUserMovedDate;
+        final TextView textUsername;
         final ImageView imageViewIcon;
         Location location;
 
@@ -96,8 +76,8 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
             mView = view;
             textTitle = view.findViewById(R.id.textTitle);
             textUserMovedDate = view.findViewById(R.id.textAddedAtDate);
+            textUsername = view.findViewById(R.id.textUsername);
             imageViewIcon = view.findViewById(R.id.imageViewIcon);
         }
     }
-
 }

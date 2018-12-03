@@ -9,15 +9,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.fragments.ContactsFragment.OnListFragmentInteractionListener;
+import nl.bramwinter.globus.fragments.ContactsFragment.ContactFragmentListener;
 import nl.bramwinter.globus.models.User;
 
 public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
 
     private final List<User> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final ContactFragmentListener mListener;
 
-    public MyUserRecyclerViewAdapter(List<User> items, OnListFragmentInteractionListener listener) {
+    public MyUserRecyclerViewAdapter(List<User> items, ContactFragmentListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -39,7 +39,7 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.onContactFragmentInteraction(holder.mItem);
+                mListener.ContactClickListener(holder.mItem);
             }
         });
     }
