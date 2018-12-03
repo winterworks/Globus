@@ -30,7 +30,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -129,32 +136,33 @@ public class OverviewActivity extends AppCompatActivity implements
         fragment.getMapAsync(OverviewActivity.this);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
 
-//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//
-//        DocumentReference documentReference = db.collection("users").document(user.getUid());
-//
-//        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if(task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//
-//                    if (document.exists()) {
-//                        Log.d("Celik", "User" + user.getEmail() + " exists");
-//                    } else {
-//                        Map<String, Object> data = new HashMap<>();
-//                        data.put("name", user.getDisplayName());
-//                        data.put("email", user.getEmail());
-//
-//                        db.collection("users").document(user.getUid()).set(data);
-//                    }
-//                } else {
-//                    Log.d("Celik", "Exception");
-//                }
-//            }
-//        });
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        Log.d("Celik", user.getUid());
+        DocumentReference documentReference = db.collection("users").document(String.valueOf(user.getUid()));
+
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Celik", "User" + user.getEmail() + " exists");
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("name", user.getDisplayName());
+                        data.put("email", user.getEmail());
+
+                        db.collection("users").document(user.getUid()).set(data);
+                    }
+                } else {
+                    Log.d("Celik", "Exception");
+                }
+            }
+        });
 
     }
 

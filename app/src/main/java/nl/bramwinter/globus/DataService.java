@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.LongSparseArray;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,8 +42,9 @@ public class DataService extends Service {
     }
 
     private void getCurrentUser(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = db.collection("users").document("w4Q75XXFDDdqCrraH5rO36R08Cl2");
+        DocumentReference documentReference = db.collection("users").document(user.getUid());
 
         documentReference.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
