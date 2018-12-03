@@ -39,6 +39,11 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".OverviewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
 
@@ -48,11 +53,6 @@
             android:exported="true" />
 
         <activity android:name=".FrontpageActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".ManageLocations"></activity>
     </application>

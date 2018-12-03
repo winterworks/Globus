@@ -5,12 +5,12 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.LongSparseArray;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
@@ -20,10 +20,9 @@ public class DataService extends Service {
 
     protected Binder binder;
 
+    private User user;
     private HashMap<Long, User> users = new HashMap<>();
     private HashMap<Long, Location> locations = new HashMap<>();
-    private HashMap<Long, Location> myLocations = new HashMap<>();
-    private HashMap<Long, Contact> contacts = new HashMap<>();
     private MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
@@ -55,22 +54,22 @@ public class DataService extends Service {
     }
 
     public Location getOneOfMyLocations(Long uuid) {
-        return myLocations.get(uuid);
+        return user.getLocations().get(uuid);
     }
 
     public void editMyLocation(Location location) {
-        myLocations.remove(location.getUuid());
-        myLocations.put(location.getUuid(), location);
+        user.getLocations().remove(location.getUuid());
+        user.getLocations().put(location.getUuid(), location);
         updateMyLocations();
     }
 
     public void addMyLocation(Location location) {
-        myLocations.put(location.getUuid(), location);
+        user.getLocations().put(location.getUuid(), location);
         updateMyLocations();
     }
 
     public void removeMyLocation(Location location) {
-        myLocations.remove(location.getUuid());
+        user.getLocations().remove(location.getUuid());
         updateMyLocations();
     }
 
@@ -83,43 +82,35 @@ public class DataService extends Service {
     }
 
     public void updateContacts() {
-        contactsLiveData.setValue(new ArrayList<>(contacts.values()));
+        contactsLiveData.setValue(asList(user.getContacts()));
     }
 
     public void updateMyLocations() {
-        myLocationsLiveData.setValue(new ArrayList<>(myLocations.values()));
+        myLocationsLiveData.setValue(asList(user.getLocations()));
     }
 
     public void insertTestData(){
-//        users.put((long) 0, new User("Andrea", "Anders", "a@a.com"));
-//        users.put((long) 1, new User("Bernard", "Bolle", "b@b.com"));
-//        users.put((long) 2, new User("Candice", "Calen", "c@c.com"));
-//        users.put((long) 3, new User("Dana", "Dale", "d@d.com"));
-//        updateUsers();
-//
-//        locations.put((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
-//        locations.put((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
-//        locations.put((long) 2, new Location(3.3, 4.4, new Date(), "Bar", 2));
-//        // Set uuid's for testing
-//        for (long i = 0; i < locations.size(); i++) {
-//            Objects.requireNonNull(locations.get(i)).setUuid(i);
-//        }
-//        updateLocations();
-//
-//        myLocations = locations;
-//        updateMyLocations();
-//
-//        User a = new User("Andrea", "Anders", "a@a.com");
-//        User b = new User("Bernard", "Bolle", "b@b.com");
-//        User c = new User("Candice", "Calen", "c@c.com");
-//        contacts.put((long) 0, new Contact(a, b, false));
-//        contacts.put((long) 1, new Contact(b, c, true));
-//        updateContacts();
+        user = new User((long)0, "Anders", "a@a.com",
+                new LongSparseArray<Location>(),
+                new LongSparseArray<Contact>()
+        );
+        user.getLocations().append((long) 0, new Location(1.1, 2.2, new Date(), "Home", 0));
+        user.getLocations().append((long) 1, new Location(2.2, 3.3, new Date(), "Work", 1));
+        updateMyLocations();
     }
 
     class DataServiceBinder extends Binder {
         DataService getService() {
             return DataService.this;
         }
+    }
+
+    // Function from: https://stackoverflow.com/questions/17008115/how-to-convert-a-sparsearray-to-arraylist#17008172
+    private static <C> List<C> asList(LongSparseArray<C> sparseArray) {
+        if (sparseArray == null) return null;
+        List<C> arrayList = new ArrayList<C>(sparseArray.size());
+        for (int i = 0; i < sparseArray.size(); i++)
+            arrayList.add(sparseArray.valueAt(i));
+        return arrayList;
     }
 }
