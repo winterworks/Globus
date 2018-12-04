@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,11 @@ public class DataService extends Service {
         getCurrentUser();
 
         binder = new DataServiceBinder();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
     }
 
     private void getCurrentUser(){
@@ -79,54 +85,18 @@ public class DataService extends Service {
         });
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
+    // Functions to manage LiveData
     public MutableLiveData<List<User>> getCurrentUsers() {
         return usersLiveData;
     }
-
     public MutableLiveData<List<Location>> getCurrentLocations() {
         return locationsLiveData;
     }
-
     public MutableLiveData<List<Contact>> getCurrentContacts() {
         return contactsLiveData;
     }
-
     public MutableLiveData<List<Location>> getMyCurrentLocations() {
         return myLocationsLiveData;
-    }
-
-    public Location getOneOfMyLocations(String uuid) {
-        return currentUser.getLocations().get(uuid);
-    }
-
-    public void editMyLocation(Location location) {
-        currentUser.getLocations().remove(location.getUuid());
-        currentUser.getLocations().put(location.getUuid(), location);
-        updateMyLocations();
-    }
-
-    public void addMyLocation(Location location) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String id = db.collection("users").document(currentUser.getUuid()).collection("locations").document().getId();
-        db.collection("users").document(currentUser.getUuid()).collection("locations").document(id).set(location);
-
-        location.setUuid(id);
-        currentUser.getLocations().put(id, location);
-        updateMyLocations();
-
-    }
-
-    public void removeMyLocation(Location location) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        currentUser.getLocations().remove(location.getUuid());
-        db.collection("users").document(user.getUid()).collection("locations").document(location.getUuid()).delete();
-
-        updateMyLocations();
     }
 
     public void updateUsers() {
@@ -145,22 +115,59 @@ public class DataService extends Service {
         myLocationsLiveData.setValue(new ArrayList<>(currentUser.getLocations().values()));
     }
 
-    public void insertTestData(){
+    // My locations
+    public Location getOneOfMyLocations(String uuid) {
+        return currentUser.getLocations().get(uuid);
+    }
+    public void editMyLocation(Location location) {
+        currentUser.getLocations().remove(location.getUuid());
+        currentUser.getLocations().put(location.getUuid(), location);
+        updateMyLocations();
+    }
+    public void addMyLocation(Location location) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String id = db.collection("users").document(currentUser.getUuid()).collection("locations").document().getId();
+        db.collection("users").document(currentUser.getUuid()).collection("locations").document(id).set(location);
 
+        location.setUuid(id);
+        currentUser.getLocations().put(id, location);
+        updateMyLocations();
+
+    }
+    public void removeMyLocation(Location location) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        currentUser.getLocations().remove(location.getUuid());
+        db.collection("users").document(user.getUid()).collection("locations").document(location.getUuid()).delete();
+
+        updateMyLocations();
+    }
+
+    // My contacts
+    public void addMyContact(String email) {
+        Query userQuery = db.collection("users").whereEqualTo("email", email);
+        userQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult().size() == 1) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                if (document.exists()) {
+                    Contact contact = new Contact(document.getId(), false);
+                    String id = db.collection("users").document(currentUser.getUuid()).collection("contacts").document().getId();
+                    db.collection("users").document(currentUser.getUuid()).collection("contacts").document(id).set(contact);
+
+                    contact.setUuid(id);
+                    currentUser.getContacts().put(id, contact);
+                    updateContacts();
+                } else {
+                    Log.d("Globus", "User not found");
+                }
+            } else {
+                Log.d("Globus", "Exception");
+            }
+        });
     }
 
     class DataServiceBinder extends Binder {
         DataService getService() {
             return DataService.this;
         }
-    }
-
-    // Function from: https://stackoverflow.com/questions/17008115/how-to-convert-a-sparsearray-to-arraylist#17008172
-    private static <C> List<C> asList(LongSparseArray<C> sparseArray) {
-        if (sparseArray == null) return null;
-        List<C> arrayList = new ArrayList<C>(sparseArray.size());
-        for (int i = 0; i < sparseArray.size(); i++)
-            arrayList.add(sparseArray.valueAt(i));
-        return arrayList;
     }
 }

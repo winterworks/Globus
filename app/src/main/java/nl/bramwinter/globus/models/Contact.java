@@ -3,12 +3,11 @@ package nl.bramwinter.globus.models;
 public class Contact {
 
     private String uuid;
-    private User contact;
+    private String contactUuid;
     private boolean accepted;
 
-    public Contact(String uuid, User contact, boolean accepted) {
-        this.uuid = uuid;
-        this.contact = contact;
+    public Contact(String contactUuid, boolean accepted) {
+        this.contactUuid = contactUuid;
         this.accepted = accepted;
     }
 
@@ -20,12 +19,12 @@ public class Contact {
         this.uuid = uuid;
     }
 
-    public User getContact() {
-        return contact;
+    public String getContactUuid() {
+        return contactUuid;
     }
 
-    public void setContact(User contact) {
-        this.contact = contact;
+    public void setContactUuid(String contactUuid) {
+        this.contactUuid = contactUuid;
     }
 
     public boolean isAccepted() {

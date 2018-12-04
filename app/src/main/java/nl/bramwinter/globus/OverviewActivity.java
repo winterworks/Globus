@@ -262,6 +262,11 @@ public class OverviewActivity extends AppCompatActivity implements
     public void ContactClickListener(User user) {
     }
 
+    @Override
+    public void ContactAddListener(String email) {
+        dataService.addMyContact(email);
+    }
+
     public void NotificationClickListener(Contact contact) {
     }
 
