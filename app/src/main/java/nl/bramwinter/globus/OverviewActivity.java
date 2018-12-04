@@ -1,11 +1,15 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
+import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -26,18 +30,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
@@ -46,7 +52,6 @@ import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
-import nl.bramwinter.globus.models.TestModel;
 import nl.bramwinter.globus.models.User;
 import nl.bramwinter.globus.util.MyProperties;
 
@@ -137,6 +142,36 @@ public class OverviewActivity extends AppCompatActivity implements
         SupportMapFragment fragment = new SupportMapFragment();
         fragment.getMapAsync(OverviewActivity.this);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        Log.d("Celik", user.getUid());
+        DocumentReference documentReference = db.collection("users").document(String.valueOf(user.getUid()));
+
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+                        Log.d("Celik", "User" + user.getEmail() + " exists");
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("name", user.getDisplayName());
+                        data.put("email", user.getEmail());
+
+                        db.collection("users").document(user.getUid()).set(data);
+                    }
+                } else {
+                    Log.d("Celik", "Exception");
+                }
+            }
+        });
+
+
     }
 
     public void getCurrentDeviceLocation() {
@@ -161,7 +196,24 @@ public class OverviewActivity extends AppCompatActivity implements
         }
     }
 
-    private void setupUi(){
+    private void addMarker(double latitude, double longtitude, int drawable, String title) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .title(title)
+                .position(new LatLng(latitude, longtitude))
+                .icon(bitmapDescriptorFromVector(getApplicationContext(), drawable));
+        mMap.addMarker(markerOptions);
+    }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    private void setupUi() {
         buttonAddLocation = findViewById(R.id.FabAddLocation);
         buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
         buttonAddLocation.setOnClickListener(v -> openCreateNewLocationsActivity());
@@ -192,7 +244,7 @@ public class OverviewActivity extends AppCompatActivity implements
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
-                dataService.insertTestData();
+                setLiveDataForMapLocations();
             }
 
             public void onServiceDisconnected(ComponentName className) {
@@ -235,6 +287,38 @@ public class OverviewActivity extends AppCompatActivity implements
             }
             mMap.setMyLocationEnabled(true);
         }
+    }
+
+    private void setLiveDataForMapLocations() {
+        Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
+        dataService.getMyCurrentLocations().observe(this, locationsObserver);
+    }
+
+    private void showLocationsOnMap(List<Location> locations) {
+        for (Location location : locations) {
+
+            int icon = 0;
+
+            if (location != null) {
+                switch (location.getIcon()) {
+                    case 0:
+                        icon = R.drawable.ic_home_black_24dp;
+                        break;
+                    case 1:
+                        icon = R.drawable.ic_location_city_black_24dp;
+                        break;
+                    case 2:
+                        icon = R.drawable.ic_casino_black_24dp;
+                        break;
+                }
+            }
+            addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     private void getMapPermissions() {

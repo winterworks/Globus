@@ -1,10 +1,14 @@
 package nl.bramwinter.globus;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +19,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +61,7 @@ public class ManageLocations extends AppCompatActivity {
         setupUi();
     }
 
-    private void setupUi(){
+    private void setupUi() {
         buttonCancel.setOnClickListener(v -> cancelActivity());
         buttonAddLocation.setOnClickListener(v -> createNewLocation());
         buttonEdit.setVisibility(View.GONE);
@@ -95,17 +104,14 @@ public class ManageLocations extends AppCompatActivity {
     }
 
     private void createNewLocation() {
-        double latitude = getIntent().getLongExtra(MyProperties.latitude, 0);
-        double longitude = getIntent().getLongExtra(MyProperties.longitude, 0);
+        Intent intent = getIntent();
+        double latitude = intent.getDoubleExtra(MyProperties.latitude, 0);
+        double longitude = intent.getDoubleExtra(MyProperties.longitude, 0);
         String description = editLocationDescription.getText().toString();
         int iconId = radioGroup.getCheckedRadioButtonId();
 
         Location location = new Location(latitude, longitude, new Date(), description, iconId);
-        // TODO this is a job for the database
-        location.setUuid(ThreadLocalRandom.current().nextLong());
         dataService.addMyLocation(location);
-
-        Intent intent = getIntent();
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -115,8 +121,6 @@ public class ManageLocations extends AppCompatActivity {
         Location newLocation = new Location(location.getLatitude(), location.getLongitude(), new Date(), location.getName(), location.getIcon());
         newLocation.setName(editLocationDescription.getText().toString());
         newLocation.setIcon(radioGroup.getCheckedRadioButtonId());
-        // TODO this is a job for the database
-        newLocation.setUuid(ThreadLocalRandom.current().nextLong());
 
         dataService.addMyLocation(newLocation);
 
@@ -142,7 +146,8 @@ public class ManageLocations extends AppCompatActivity {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
                 if (getIntent().hasExtra(MyProperties.locationId)) {
-                    location = dataService.getOneOfMyLocations(getIntent().getLongExtra(MyProperties.locationId, 0));
+                    Intent intent = getIntent();
+                    location = dataService.getOneOfMyLocations(getIntent().getStringExtra(MyProperties.locationId));
                     showLocationInfoInUi(location);
                 }
             }
