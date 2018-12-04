@@ -1,6 +1,7 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
+import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
@@ -70,7 +72,6 @@ public class OverviewActivity extends AppCompatActivity implements
     FusedLocationProviderClient fusedLocationProviderClient;
     private boolean mLocationPermissionGranted = false;
     private FloatingActionButton buttonAddLocation;
-
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -152,7 +153,7 @@ public class OverviewActivity extends AppCompatActivity implements
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()) {
+                if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
 
                     if (document.exists()) {
@@ -212,7 +213,7 @@ public class OverviewActivity extends AppCompatActivity implements
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    private void setupUi(){
+    private void setupUi() {
         buttonAddLocation = findViewById(R.id.FabAddLocation);
         buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
         buttonAddLocation.setOnClickListener(v -> openCreateNewLocationsActivity());
@@ -243,7 +244,7 @@ public class OverviewActivity extends AppCompatActivity implements
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
-                dataService.insertTestData();
+                setLiveDataForMapLocations();
             }
 
             public void onServiceDisconnected(ComponentName className) {
@@ -277,8 +278,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-
         mMap = googleMap;
 
         if (mLocationPermissionGranted) {
@@ -287,48 +286,39 @@ public class OverviewActivity extends AppCompatActivity implements
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            showLocationsOnMap();
-
-
         }
     }
 
-    private void showLocationsOnMap() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private void setLiveDataForMapLocations() {
+        Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
+        dataService.getMyCurrentLocations().observe(this, locationsObserver);
+    }
 
-        db.collection("users").document(user.getUid()).collection("locations")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()) {
-                        for (DocumentSnapshot document : task.getResult()) {
-                            Location location = document.toObject(Location.class);
+    private void showLocationsOnMap(List<Location> locations) {
+        for (Location location : locations) {
 
-                            int icon = 0;
+            int icon = 0;
 
-                            if (location != null) {
-                                switch (location.getIcon()) {
-                                    case 0:
-                                        icon = R.drawable.ic_home_black_24dp;
-                                        break;
-                                    case 1:
-                                        icon = R.drawable.ic_location_city_black_24dp;
-                                        break;
-                                    case 2:
-                                        icon = R.drawable.ic_casino_black_24dp;
-                                        break;
-                                }
-                            }
-                            addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
-                        }
-                    }
-                });
+            if (location != null) {
+                switch (location.getIcon()) {
+                    case 0:
+                        icon = R.drawable.ic_home_black_24dp;
+                        break;
+                    case 1:
+                        icon = R.drawable.ic_location_city_black_24dp;
+                        break;
+                    case 2:
+                        icon = R.drawable.ic_casino_black_24dp;
+                        break;
+                }
+            }
+            addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        showLocationsOnMap();
     }
 
     private void getMapPermissions() {
