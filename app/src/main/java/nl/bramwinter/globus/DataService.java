@@ -98,7 +98,10 @@ public class DataService extends Service {
                 currentUser.setContacts(contacts);
                 updateContacts();
                 for (Contact contact : currentUser.getContacts().values()) {
-                    addContactToUserList(contact);
+                    // Only download the actual contact(user) if the request has been accepted.
+                    if (contact.isAccepted()) {
+                        addContactToUserList(contact);
+                    }
                 }
             }
         });

@@ -14,12 +14,12 @@ import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment.NotificationFragmentListener;
 import nl.bramwinter.globus.models.Contact;
 
-public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
+public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyNotificationsRecyclerViewAdapter.ViewHolder> {
 
     private final List<Contact> mValues;
     private final NotificationsFragment.NotificationFragmentListener mListener;
 
-    public MyContactsRecyclerViewAdapter(List<Contact> items, NotificationFragmentListener listener) {
+    public MyNotificationsRecyclerViewAdapter(List<Contact> items, NotificationFragmentListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -27,7 +27,7 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_contacts, parent, false);
+                .inflate(R.layout.fragment_notification, parent, false);
         return new ViewHolder(view);
     }
 

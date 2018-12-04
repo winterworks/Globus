@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
-import nl.bramwinter.globus.adaptors.MyContactsRecyclerViewAdapter;
+import nl.bramwinter.globus.adaptors.MyNotificationsRecyclerViewAdapter;
 import nl.bramwinter.globus.models.Contact;
 
 /**
@@ -63,7 +63,7 @@ public class NotificationsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_contacts_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_notifications_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -75,7 +75,7 @@ public class NotificationsFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            Observer<List<Contact>> contactsObserver = contacts -> recyclerView.setAdapter(new MyContactsRecyclerViewAdapter(contacts, mListener));
+            Observer<List<Contact>> contactsObserver = contacts -> recyclerView.setAdapter(new MyNotificationsRecyclerViewAdapter(contacts, mListener));
             contactsLiveData.observe(this, contactsObserver);
         }
         return view;

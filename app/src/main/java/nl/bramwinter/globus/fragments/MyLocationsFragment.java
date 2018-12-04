@@ -31,7 +31,6 @@ public class MyLocationsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private MyLocationsFragmentListener mListener;
-    private MyLocationsPressListener mPressListener;
 
     private MutableLiveData<List<Location>> locationsLiveData;
 
@@ -77,7 +76,7 @@ public class MyLocationsFragment extends Fragment {
             }
 //            recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
 
-            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener, mPressListener));
+            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new MyLocationRecyclerViewAdapter(locations, mListener));
             locationsLiveData.observe(this, locationsObserver);
         }
         return view;
@@ -96,19 +95,12 @@ public class MyLocationsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement MyLocationsFragmentListener");
         }
-        if (context instanceof MyLocationsPressListener) {
-            mPressListener = (MyLocationsPressListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement MyLocationsPressListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mPressListener = null;
     }
 
     /**
@@ -123,9 +115,6 @@ public class MyLocationsFragment extends Fragment {
      */
     public interface MyLocationsFragmentListener {
         void MyLocationsClickListener(Location location);
-    }
-
-    public interface MyLocationsPressListener {
         void MyLocationsPressListener(Location location);
     }
 }

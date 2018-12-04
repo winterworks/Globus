@@ -58,7 +58,6 @@ import nl.bramwinter.globus.util.MyProperties;
 public class OverviewActivity extends AppCompatActivity implements
         LocationUpdatesFragment.locationsFragmentListener,
         MyLocationsFragment.MyLocationsFragmentListener,
-        MyLocationsFragment.MyLocationsPressListener,
         ContactsFragment.ContactFragmentListener,
         NotificationsFragment.NotificationFragmentListener,
         OnMapReadyCallback {
@@ -170,8 +169,6 @@ public class OverviewActivity extends AppCompatActivity implements
                 }
             }
         });
-
-
     }
 
     public void getCurrentDeviceLocation() {
