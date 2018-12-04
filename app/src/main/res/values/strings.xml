@@ -32,6 +32,8 @@
     <string name="auth_failed">Authentication failed :-(</string>
     <string name="signed_out">Signed Out</string>
 
-    <string name="cancel">Cancel</string>
     <string name="title_activity_create_user">CreateUserActivity</string>
+    <string name="lastname">LastName</string>
+    <string name="firstname">FirstName</string>
+    <string name="cancel">cancel</string>
 </resources>
