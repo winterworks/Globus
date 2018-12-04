@@ -105,7 +105,7 @@ public class OverviewActivity extends AppCompatActivity implements
                             fragment = new ContactsFragment();
 
                             ContactsFragment contactsFragment = (ContactsFragment) fragment;
-                            contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
+                            contactsFragment.setUsersLiveData(dataService.getCurrentContactUsers());
 
                             break;
                         case R.id.nav_locations_list:

@@ -72,14 +72,15 @@ public class ContactsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        if (view.findViewById(R.id.contact_list) instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            RecyclerView recyclerView = view.findViewById(R.id.contact_list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+
             Observer<List<User>> userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
             usersLiveData.observe(this, userObserver);
         }

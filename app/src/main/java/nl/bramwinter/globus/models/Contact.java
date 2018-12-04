@@ -1,5 +1,7 @@
 package nl.bramwinter.globus.models;
 
+import java.util.Map;
+
 public class Contact {
 
     private String uuid;
@@ -9,6 +11,16 @@ public class Contact {
     public Contact(String contactUuid, boolean accepted) {
         this.contactUuid = contactUuid;
         this.accepted = accepted;
+    }
+
+    public Contact(Map map) {
+        try {
+            this.uuid = (String) map.get("uuid");
+            this.contactUuid = (String) map.get("contactUuid");
+            this.accepted = (boolean) map.get("accepted");
+        } catch (Exception e) {
+
+        }
     }
 
     public String getUuid() {
