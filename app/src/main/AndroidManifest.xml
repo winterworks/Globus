@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!--Source launcher icon: http://www.iconarchive.com/show/hex-icons-by-martz90/location-icon.html -->
+    <!-- Source launcher icon: http://www.iconarchive.com/show/hex-icons-by-martz90/location-icon.html -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -38,9 +38,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".OverviewActivity">
-
-        </activity>
+        <activity android:name=".OverviewActivity"></activity>
 
         <service
             android:name=".DataService"
@@ -54,7 +52,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ManageLocations"></activity>
+        <activity android:name=".ManageLocations" />
+        <activity
+            android:name=".CreateUserActivity"
+            android:label="@string/title_activity_create_user"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
