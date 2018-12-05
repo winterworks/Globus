@@ -106,7 +106,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
                             notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
-                            notificationsFragment.setUsersLiveData(dataService.getCurrentContactUsers());
+                            notificationsFragment.setUsersLiveData(dataService.getCurrentContactUsersRequested());
 
                             break;
                         case R.id.nav_contact_list:

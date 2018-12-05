@@ -31,7 +31,9 @@ public class DataService extends Service {
     private FirebaseFirestore db;
     private User currentUser;
     private HashMap<String, User> contactUsers = new HashMap<>();
+    private HashMap<String, User> contactUsersRequested = new HashMap<>();
     private MutableLiveData<List<User>> contactUsersLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
@@ -90,15 +92,15 @@ public class DataService extends Service {
         updateContacts();
         for (Contact contact : currentUser.getContacts().values()) {
             // Only download the actual contact(user) if the request has been accepted.
-            if (contact.isAccepted() || !contact.isInitiated()) {
-                addContactToUserList(contact);
-            }
-//            else if () {
-//                // Contact is not yet accepted and not initiated by this user, so download the other user object.
-//                db.collection("users").document(contact.getContactUuid()).get().addOnCompleteListener(userTask -> {
-//                    addContactToUserList(contact);
-//                });
-//            }
+            AddContactToLists(contact);
+        }
+    }
+
+    private void AddContactToLists(Contact contact) {
+        if (contact.isAccepted()) {
+            addContactToUserList(contact);
+        } else if (!contact.isInitiated()) {
+            addContactToUserRequestedList(contact);
         }
     }
 
@@ -117,15 +119,11 @@ public class DataService extends Service {
                             switch (dc.getType()) {
                                 case ADDED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted() || !contact.isInitiated()) {
-                                        addContactToUserList(contact);
-                                    }
+                                    AddContactToLists(contact);
                                     break;
                                 case MODIFIED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted() || !contact.isInitiated()) {
-                                        addContactToUserList(contact);
-                                    }
+                                    AddContactToLists(contact);
                                     break;
                                 case REMOVED:
                                     currentUser.getContacts().remove(contact.getUuid());
@@ -167,9 +165,7 @@ public class DataService extends Service {
                             updateCurrentContactUsers();
                         }
                     }
-
                 });
-
     }
 
     private void addContactToUserList(Contact contact) {
@@ -188,9 +184,28 @@ public class DataService extends Service {
         });
     }
 
+    private void addContactToUserRequestedList(Contact contact) {
+        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
+                    contactUsersRequested.put(document.getId(), newUser);
+                    updateCurrentContactUsersRequested();
+                }
+            }
+        });
+    }
+
     /*
      Functions to manage LiveData
       */
+    public MutableLiveData<List<User>> getCurrentContactUsersRequested() {
+        return contactUsersRequestedLiveData;
+    }
+
     public MutableLiveData<List<User>> getCurrentContactUsers() {
         return contactUsersLiveData;
     }
@@ -209,6 +224,10 @@ public class DataService extends Service {
 
     public void updateCurrentContactUsers() {
         contactUsersLiveData.setValue(new ArrayList<>(contactUsers.values()));
+    }
+
+    public void updateCurrentContactUsersRequested() {
+        contactUsersRequestedLiveData.setValue(new ArrayList<>(contactUsersRequested.values()));
     }
 
     public void updateContacts() {
@@ -307,6 +326,8 @@ public class DataService extends Service {
         db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
         currentUser.getContacts().get(contact.getUuid()).setAccepted(true);
         updateContacts();
+        contactUsersRequested.remove(contact.getContactUuid());
+        updateCurrentContactUsersRequested();
     }
 
     public void removeContactForUser(User user) {
@@ -331,9 +352,9 @@ public class DataService extends Service {
             }
         });
         currentUser.getContacts().remove(contact.getUuid());
-        contactUsers.remove(contact.getContactUuid());
+        contactUsersRequested.remove(contact.getContactUuid());
         updateContacts();
-        updateCurrentContactUsers();
+        updateCurrentContactUsersRequested();
     }
 
     class DataServiceBinder extends Binder {
