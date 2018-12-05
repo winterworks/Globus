@@ -114,5 +114,9 @@ public class NotificationsFragment extends Fragment {
      */
     public interface NotificationFragmentListener {
         void NotificationClickListener(Contact contact);
+
+        void NotificationAcceptListener(Contact contact);
+
+        void NotificationDeclineListener(Contact contact);
     }
 }

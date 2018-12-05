@@ -268,6 +268,16 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void NotificationAcceptListener(Contact contact) {
+        dataService.acceptContact(contact);
+    }
+
+    @Override
+    public void NotificationDeclineListener(Contact contact) {
+
+    }
+
+    @Override
     public void MyLocationsClickListener(Location location) {
         openManageLocationsActivity(location);
     }

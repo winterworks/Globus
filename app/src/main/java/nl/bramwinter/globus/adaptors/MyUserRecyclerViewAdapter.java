@@ -14,11 +14,11 @@ import nl.bramwinter.globus.models.User;
 
 public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecyclerViewAdapter.ViewHolder> {
 
-    private final List<User> mValues;
+    private final List<User> users;
     private final ContactFragmentListener mListener;
 
     public MyUserRecyclerViewAdapter(List<User> items, ContactFragmentListener listener) {
-        mValues = items;
+        users = items;
         mListener = listener;
     }
 
@@ -31,29 +31,29 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.textName.setText(mValues.get(position).getName());
-        holder.textEmail.setText(mValues.get(position).getEmail());
+        holder.user = users.get(position);
+        holder.textName.setText(users.get(position).getName());
+        holder.textEmail.setText(users.get(position).getEmail());
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.ContactClickListener(holder.mItem);
+                mListener.ContactClickListener(holder.user);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return users.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
         final TextView textName;
         final TextView textEmail;
-        User mItem;
+        User user;
 
         ViewHolder(View view) {
             super(view);

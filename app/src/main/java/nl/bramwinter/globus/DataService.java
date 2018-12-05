@@ -101,6 +101,8 @@ public class DataService extends Service {
                     // Only download the actual contact(user) if the request has been accepted.
                     if (contact.isAccepted()) {
                         addContactToUserList(contact);
+                    } else if (!contact.isInitiated()) {
+
                     }
                 }
             }
@@ -195,18 +197,31 @@ public class DataService extends Service {
 
     // My contacts
     public void addMyContact(String email) {
+        // Get the user belonging to the email
         Query userQuery = db.collection("users").whereEqualTo("email", email);
         userQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult().size() == 1) {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
                 if (document.exists()) {
-                    Contact contact = new Contact(document.getId(), false);
-                    String id = db.collection("users").document(currentUser.getUuid()).collection("contacts").document().getId();
-                    db.collection("users").document(currentUser.getUuid()).collection("contacts").document(id).set(contact);
+                    // Check if the current user already has a contact for this user.
+                    Query contactQuery = db.collection("users").document(currentUser.getUuid()).collection("contacts").whereEqualTo("contactUuid", document.getId());
+                    contactQuery.get().addOnCompleteListener(checkIfContactExistsTask -> {
+                        if (checkIfContactExistsTask.isSuccessful() && checkIfContactExistsTask.getResult().size() == 0) {
+                            // Store the contact for the contacted user
+                            Contact externalContact = new Contact(currentUser.getUuid(), false, false);
+                            String id1 = db.collection("users").document(document.getId()).collection("contacts").document().getId();
+                            db.collection("users").document(document.getId()).collection("contacts").document(id1).set(externalContact);
 
-                    contact.setUuid(id);
-                    currentUser.getContacts().put(id, contact);
-                    updateContacts();
+                            // Store the contact for the current user
+                            Contact myContact = new Contact(document.getId(), false, true);
+                            String id2 = db.collection("users").document(currentUser.getUuid()).collection("contacts").document().getId();
+                            db.collection("users").document(currentUser.getUuid()).collection("contacts").document(id2).set(myContact);
+
+                            myContact.setUuid(id2);
+                            currentUser.getContacts().put(id2, myContact);
+                            updateContacts();
+                        }
+                    });
                 } else {
                     Log.d("Globus", "User not found");
                 }
@@ -214,6 +229,34 @@ public class DataService extends Service {
                 Log.d("Globus", "Exception");
             }
         });
+    }
+
+    public void acceptContact(Contact contact) {
+        // Accept the contact for the contacted user
+        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", currentUser.getUuid());
+        userQuery.get().addOnCompleteListener(task -> {
+            boolean a = task.isSuccessful();
+            int b = task.getResult().size();
+            if (task.isSuccessful() && task.getResult().size() == 1) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                if (document.exists()) {
+                    Contact externalContact = new Contact(document.getData());
+                    externalContact.setAccepted(true);
+
+                    db.collection("users").document(contact.getContactUuid()).collection("contacts").document(document.getId()).set(externalContact);
+                } else {
+                    Log.d("Globus", "User not found");
+                }
+            } else {
+                Log.d("Globus", "Exception");
+            }
+        });
+
+        // Accept the contact for the current user
+        contact.setAccepted(true);
+        db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
+        currentUser.getContacts().get(contact.getUuid()).setAccepted(true);
+        updateContacts();
     }
 
     class DataServiceBinder extends Binder {
