@@ -18,6 +18,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 
+/**
+ *
+ * Parts of this code is taken/inspired from Googles firebase guide
+ *
+ */
+
 public class CreateUserActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FirebaseAuth mAuth;
@@ -56,7 +62,6 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
     }
 
     public void updateUI(FirebaseUser user){
-      //  hideProgressDialog();
         if (user != null) {
 
         }
@@ -84,13 +89,9 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         return valid;
     }
 
-
-
     private void cancel(){
         this.finish();
     }
-
-
 
     private void createAccount(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
@@ -98,9 +99,6 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
             return;
         }
 
-      //  showProgressDialog();
-
-        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -117,12 +115,9 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
                     }
                 });
-        // [END create_user_with_email]
     }
-
 
     @Override
     public void onClick(View v) {
@@ -137,5 +132,4 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
 
         }
     }
-
 }

@@ -2,7 +2,6 @@ package nl.bramwinter.globus;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +26,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+/**
+ *
+ * Parts of this code is taken/inspired from Googles firebase guide
+ *
+ */
 
 public class FrontpageActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -61,6 +66,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
 
         findViewById(R.id.googlelogin).setOnClickListener(this);
         findViewById(R.id.buttonCreate).setOnClickListener(this);
+        findViewById(R.id.buttonLogin).setOnClickListener(this);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -88,10 +94,12 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
             Intent intent = new Intent(this, OverviewActivity.class);
                     startActivity(intent);
                     finish();
-        } else {
-            ((TextView) findViewById(R.id.textViewStatus)).setText(
-                    "Error: sign in fucking failed.");
         }
+        else
+            {
+                ((TextView) findViewById(R.id.textViewStatus)).setText(
+                        getString(R.string.FrontpageMessage));
+            }
     }
 
     @Override
@@ -103,15 +111,74 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         else if(i == R.id.buttonCreate){
             createUser();
         }
-        else if (i == R.id.buttonLogin){}
+        else if (i == R.id.buttonLogin){
+            signInManually(emailField.getText().toString(), passwordField.getText().toString());
+        }
+    }
+
+    private boolean validateForm(){
+        boolean valid = true;
+
+        String email = emailField.getText().toString();
+        if (TextUtils.isEmpty(email)) {
+            emailField.setError("Required.");
+            valid = false;
+        } else {
+            emailField.setError(null);
+        }
+
+        String password = passwordField.getText().toString();
+        if (TextUtils.isEmpty(password)) {
+            passwordField.setError("Required.");
+            valid = false;
+        } else {
+            passwordField.setError(null);
+        }
+
+        return valid;
+    }
+
+    private void signInManually(String email, String password) {
+        Log.d(TAG, "signIn:" + email);
+        if (!validateForm()) {
+            return;
+        }
+
+        // [START sign_in_with_email]
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = auth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(FrontpageActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // [START_EXCLUDE]
+                        if (!task.isSuccessful()) {
+                            statusTextView.setText(R.string.auth_failed);
+                        }
+                        // [END_EXCLUDE]
+                    }
+                });
+        // [END sign_in_with_email]
     }
 
     private void createUser(){
         Intent intent = new Intent(FrontpageActivity.this, CreateUserActivity.class);
-        //startActivityForResult(intent, 9002);
+        //startActivityForResult(intent, 9002); //maybe better this way?
         startActivity(intent);
     }
 
+    //google sign in
     private void signIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
