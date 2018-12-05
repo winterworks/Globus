@@ -264,6 +264,11 @@ public class OverviewActivity extends AppCompatActivity implements
         dataService.addMyContact(email);
     }
 
+    @Override
+    public void ContactPressListener(User user) {
+        dataService.removeContactForUser(user);
+    }
+
     public void NotificationClickListener(Contact contact) {
     }
 
@@ -274,7 +279,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void NotificationDeclineListener(Contact contact) {
-
+        dataService.removeContact(contact);
     }
 
     @Override

@@ -42,6 +42,14 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
                 mListener.ContactClickListener(holder.user);
             }
         });
+
+        holder.mView.setOnLongClickListener(view -> {
+            if (null != mListener) {
+                mListener.ContactPressListener(holder.user);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

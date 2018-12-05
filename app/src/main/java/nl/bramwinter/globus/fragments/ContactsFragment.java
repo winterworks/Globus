@@ -132,5 +132,7 @@ public class ContactsFragment extends Fragment {
         void ContactClickListener(User user);
 
         void ContactAddListener(String email);
+
+        void ContactPressListener(User user);
     }
 }

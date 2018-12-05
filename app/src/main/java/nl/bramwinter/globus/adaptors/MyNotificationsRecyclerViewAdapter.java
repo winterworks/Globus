@@ -22,9 +22,9 @@ public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyN
     public MyNotificationsRecyclerViewAdapter(List<Contact> contacts, NotificationFragmentListener listener) {
         for (Contact contact : contacts) {
             // Don't show the contact if it's already accepted or you are the one who requested the contact
-//            if (contact.isAccepted() || contact.isInitiated()) {
-//                contacts.remove(contact);
-//            }
+            if (contact.isAccepted() || contact.isInitiated()) {
+                contacts.remove(contact);
+            }
         }
         this.contacts = contacts;
         mListener = listener;

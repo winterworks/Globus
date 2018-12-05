@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -67,7 +68,7 @@ public class DataService extends Service {
     }
 
     private void setDataFromFireBase(DocumentReference documentReference, DocumentSnapshot document) {
-        currentUser = new User(document.getId(), document.getString("name"), document.getString("email"));
+        currentUser = new User(document.getId(), document.getString("name"), document.getString("email"), new HashMap<>(), new HashMap<>());
 
         // Make a separate request for the locations of this user
         documentReference.collection("locations").get().addOnCompleteListener(locationsTask -> {
@@ -85,28 +86,53 @@ public class DataService extends Service {
             }
         });
 
-        // Make a separate request for the contacts of this user
-        documentReference.collection("contacts").get().addOnCompleteListener(contactsTask -> {
-            if (contactsTask.isSuccessful()) {
-                HashMap<String, Contact> contacts = new HashMap<>();
-                for (DocumentSnapshot contactDocument : contactsTask.getResult()) {
-                    Contact contact = new Contact(contactDocument.getData());
-                    contact.setUuid(contactDocument.getId());
-                    contacts.put(contactDocument.getId(), contact);
-                }
+        setCurrentUserContactsListener(documentReference);
+        updateContacts();
+        for (Contact contact : currentUser.getContacts().values()) {
+            // Only download the actual contact(user) if the request has been accepted.
+            if (contact.isAccepted()) {
+                addContactToUserList(contact);
+            } else if (!contact.isInitiated()) {
 
-                currentUser.setContacts(contacts);
-                updateContacts();
-                for (Contact contact : currentUser.getContacts().values()) {
-                    // Only download the actual contact(user) if the request has been accepted.
-                    if (contact.isAccepted()) {
-                        addContactToUserList(contact);
-                    } else if (!contact.isInitiated()) {
-
-                    }
-                }
             }
-        });
+        }
+    }
+
+    private void setCurrentUserContactsListener(DocumentReference documentReference) {
+        documentReference.collection("contacts")
+                .addSnapshotListener((value, e) -> {
+                    if (e != null) {
+                        Log.w("Globus", "Listen failed.", e);
+                        return;
+                    }
+
+                    for (DocumentChange dc : value.getDocumentChanges()) {
+                        if (dc.getDocument().get("contactUuid") != null) {
+                            Contact contact = new Contact(dc.getDocument().getData());
+                            contact.setUuid(dc.getDocument().getId());
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    currentUser.getContacts().put(contact.getUuid(), contact);
+                                    if (contact.isAccepted()) {
+                                        addContactToUserList(contact);
+                                    }
+                                    break;
+                                case MODIFIED:
+                                    currentUser.getContacts().put(contact.getUuid(), contact);
+                                    if (contact.isAccepted()) {
+                                        addContactToUserList(contact);
+                                    }
+                                    break;
+                                case REMOVED:
+                                    currentUser.getContacts().remove(contact.getUuid());
+                                    break;
+                            }
+
+                            updateContacts();
+                        }
+                    }
+
+                });
     }
 
     private void addContactToUserList(Contact contact) {
@@ -216,10 +242,6 @@ public class DataService extends Service {
                             Contact myContact = new Contact(document.getId(), false, true);
                             String id2 = db.collection("users").document(currentUser.getUuid()).collection("contacts").document().getId();
                             db.collection("users").document(currentUser.getUuid()).collection("contacts").document(id2).set(myContact);
-
-                            myContact.setUuid(id2);
-                            currentUser.getContacts().put(id2, myContact);
-                            updateContacts();
                         }
                     });
                 } else {
@@ -235,8 +257,6 @@ public class DataService extends Service {
         // Accept the contact for the contacted user
         Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", currentUser.getUuid());
         userQuery.get().addOnCompleteListener(task -> {
-            boolean a = task.isSuccessful();
-            int b = task.getResult().size();
             if (task.isSuccessful() && task.getResult().size() == 1) {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
                 if (document.exists()) {
@@ -257,6 +277,33 @@ public class DataService extends Service {
         db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
         currentUser.getContacts().get(contact.getUuid()).setAccepted(true);
         updateContacts();
+    }
+
+    public void removeContactForUser(User user) {
+        for (Contact contact : currentUser.getContacts().values()) {
+            if (contact.getContactUuid().equals(user.getUuid())) {
+                // Found the contact for the user, now remove it.
+                removeContact(contact);
+                return;
+            }
+        }
+    }
+
+    public void removeContact(Contact contact) {
+        db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).delete();
+        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", currentUser.getUuid());
+        userQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult().size() == 1) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                if (document.exists()) {
+                    db.collection("users").document(contact.getContactUuid()).collection("contacts").document(document.getId()).delete();
+                }
+            }
+        });
+        currentUser.getContacts().remove(contact.getUuid());
+        contactUsers.remove(contact.getContactUuid());
+        updateContacts();
+        updateCurrentContactUsers();
     }
 
     class DataServiceBinder extends Binder {
