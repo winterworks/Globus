@@ -26,12 +26,14 @@ import nl.bramwinter.globus.models.User;
 public class DataService extends Service {
 
     protected Binder binder;
+    private static final String TAG = "DataService";
 
     private FirebaseFirestore db;
     private User currentUser;
     private HashMap<String, User> contactUsers = new HashMap<>();
-    private HashMap<String, Location> locations = new HashMap<>();
+    private HashMap<String, User> contactUsersRequested = new HashMap<>();
     private MutableLiveData<List<User>> contactUsersLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
@@ -59,10 +61,10 @@ public class DataService extends Service {
                 if (document.exists()) {
                     setDataFromFireBase(documentReference, document);
                 } else {
-                    Log.d("Globus", "User not found");
+                    Log.d(TAG, "User not found");
                 }
             } else {
-                Log.d("Globus", "Exception");
+                Log.d(TAG, "Exception");
             }
         });
     }
@@ -90,11 +92,15 @@ public class DataService extends Service {
         updateContacts();
         for (Contact contact : currentUser.getContacts().values()) {
             // Only download the actual contact(user) if the request has been accepted.
-            if (contact.isAccepted()) {
-                addContactToUserList(contact);
-            } else if (!contact.isInitiated()) {
+            AddContactToLists(contact);
+        }
+    }
 
-            }
+    private void AddContactToLists(Contact contact) {
+        if (contact.isAccepted()) {
+            addContactToUserList(contact);
+        } else if (!contact.isInitiated()) {
+            addContactToUserRequestedList(contact);
         }
     }
 
@@ -102,7 +108,7 @@ public class DataService extends Service {
         documentReference.collection("contacts")
                 .addSnapshotListener((value, e) -> {
                     if (e != null) {
-                        Log.w("Globus", "Listen failed.", e);
+                        Log.w(TAG, "Listen failed.", e);
                         return;
                     }
 
@@ -113,15 +119,11 @@ public class DataService extends Service {
                             switch (dc.getType()) {
                                 case ADDED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted()) {
-                                        addContactToUserList(contact);
-                                    }
+                                    AddContactToLists(contact);
                                     break;
                                 case MODIFIED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted()) {
-                                        addContactToUserList(contact);
-                                    }
+                                    AddContactToLists(contact);
                                     break;
                                 case REMOVED:
                                     currentUser.getContacts().remove(contact.getUuid());
@@ -135,21 +137,64 @@ public class DataService extends Service {
                 });
     }
 
+    private void setContactUserLocationsListener(User user) {
+        DocumentReference documentReference = db.collection("users").document(user.getUuid());
+        documentReference.collection("locations")
+                .addSnapshotListener((value, e) -> {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e);
+                        return;
+                    }
+
+                    for (DocumentChange dc : value.getDocumentChanges()) {
+                        if (dc.getDocument().get("latitude") != null) {
+                            Location location = new Location(dc.getDocument().getData());
+                            location.setUuid(dc.getDocument().getId());
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    user.getLocations().put(location.getUuid(), location);
+                                    break;
+                                case MODIFIED:
+                                    user.getLocations().put(location.getUuid(), location);
+                                    break;
+                                case REMOVED:
+                                    user.getLocations().remove(location.getUuid());
+                                    break;
+                            }
+
+                            updateCurrentContactUsers();
+                        }
+                    }
+                });
+    }
+
     private void addContactToUserList(Contact contact) {
-        DocumentReference documentReference = db.collection("users").document(String.valueOf(contact.getContactUuid()));
+        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
         documentReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
 
                 if (document.exists()) {
-                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString());
+                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
                     contactUsers.put(document.getId(), newUser);
+                    setContactUserLocationsListener(newUser);
                     updateCurrentContactUsers();
-                } else {
-                    // TODO
                 }
-            } else {
-                // TODO
+            }
+        });
+    }
+
+    private void addContactToUserRequestedList(Contact contact) {
+        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
+                    contactUsersRequested.put(document.getId(), newUser);
+                    updateCurrentContactUsersRequested();
+                }
             }
         });
     }
@@ -157,6 +202,10 @@ public class DataService extends Service {
     /*
      Functions to manage LiveData
       */
+    public MutableLiveData<List<User>> getCurrentContactUsersRequested() {
+        return contactUsersRequestedLiveData;
+    }
+
     public MutableLiveData<List<User>> getCurrentContactUsers() {
         return contactUsersLiveData;
     }
@@ -177,8 +226,8 @@ public class DataService extends Service {
         contactUsersLiveData.setValue(new ArrayList<>(contactUsers.values()));
     }
 
-    public void updateLocations() {
-        locationsLiveData.setValue(new ArrayList<>(locations.values()));
+    public void updateCurrentContactUsersRequested() {
+        contactUsersRequestedLiveData.setValue(new ArrayList<>(contactUsersRequested.values()));
     }
 
     public void updateContacts() {
@@ -245,10 +294,10 @@ public class DataService extends Service {
                         }
                     });
                 } else {
-                    Log.d("Globus", "User not found");
+                    Log.d(TAG, "User not found");
                 }
             } else {
-                Log.d("Globus", "Exception");
+                Log.d(TAG, "Exception");
             }
         });
     }
@@ -265,10 +314,10 @@ public class DataService extends Service {
 
                     db.collection("users").document(contact.getContactUuid()).collection("contacts").document(document.getId()).set(externalContact);
                 } else {
-                    Log.d("Globus", "User not found");
+                    Log.d(TAG, "User not found");
                 }
             } else {
-                Log.d("Globus", "Exception");
+                Log.d(TAG, "Exception");
             }
         });
 
@@ -277,6 +326,8 @@ public class DataService extends Service {
         db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
         currentUser.getContacts().get(contact.getUuid()).setAccepted(true);
         updateContacts();
+        contactUsersRequested.remove(contact.getContactUuid());
+        updateCurrentContactUsersRequested();
     }
 
     public void removeContactForUser(User user) {
@@ -301,9 +352,9 @@ public class DataService extends Service {
             }
         });
         currentUser.getContacts().remove(contact.getUuid());
-        contactUsers.remove(contact.getContactUuid());
+        contactUsersRequested.remove(contact.getContactUuid());
         updateContacts();
-        updateCurrentContactUsers();
+        updateCurrentContactUsersRequested();
     }
 
     class DataServiceBinder extends Binder {

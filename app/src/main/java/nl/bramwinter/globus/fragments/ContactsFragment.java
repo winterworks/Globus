@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -88,13 +89,19 @@ public class ContactsFragment extends Fragment {
         return view;
     }
 
-    //Code to slect and View in a fragment from: https://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
+    //Code to select and View in a fragment from: https://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         buttonAddContact = view.findViewById(R.id.buttonAddContact);
         editTextEmail = view.findViewById(R.id.editTextEmail);
-        buttonAddContact.setOnClickListener(fragmentView -> mListener.ContactAddListener(editTextEmail.getText().toString()));
+        buttonAddContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.ContactAddListener(editTextEmail.getText().toString());
+                Toast.makeText(getContext(), "Request sent", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void setUsersLiveData(MutableLiveData<List<User>> userLiveData) {

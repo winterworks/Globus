@@ -1,6 +1,7 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
+import android.app.Service;
 import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,6 +10,11 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -42,9 +48,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -98,6 +106,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
                             NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
                             notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
+                            notificationsFragment.setUsersLiveData(dataService.getCurrentContactUsersRequested());
 
                             break;
                         case R.id.nav_contact_list:
@@ -201,6 +210,7 @@ public class OverviewActivity extends AppCompatActivity implements
         mMap.addMarker(markerOptions);
     }
 
+    // source: https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
         vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
@@ -242,6 +252,7 @@ public class OverviewActivity extends AppCompatActivity implements
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
                 setLiveDataForMapLocations();
+                setLiveDataForContactMapLocations();
             }
 
             public void onServiceDisconnected(ComponentName className) {
@@ -311,6 +322,18 @@ public class OverviewActivity extends AppCompatActivity implements
         dataService.getMyCurrentLocations().observe(this, locationsObserver);
     }
 
+    private void setLiveDataForContactMapLocations() {
+        Observer<List<User>> userObserver = users -> showLocationsForUser(users);
+        dataService.getCurrentContactUsers().observe(this, userObserver);
+
+    }
+
+    private void showLocationsForUser(List<User> users) {
+        for (User user : users) {
+            showLocationsOnMap(new ArrayList<>(user.getLocations().values()));
+        }
+    }
+
     private void showLocationsOnMap(List<Location> locations) {
         for (Location location : locations) {
 
@@ -320,6 +343,7 @@ public class OverviewActivity extends AppCompatActivity implements
                 switch (location.getIcon()) {
                     case 0:
                         icon = R.drawable.ic_home_black_24dp;
+
                         break;
                     case 1:
                         icon = R.drawable.ic_location_city_black_24dp;
@@ -336,6 +360,7 @@ public class OverviewActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+//        setLiveDataForMapLocations();
     }
 
     private void getMapPermissions() {

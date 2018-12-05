@@ -17,8 +17,8 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
     private final List<User> users;
     private final ContactFragmentListener mListener;
 
-    public MyUserRecyclerViewAdapter(List<User> items, ContactFragmentListener listener) {
-        users = items;
+    public MyUserRecyclerViewAdapter(List<User> users, ContactFragmentListener listener) {
+        this.users = users;
         mListener = listener;
     }
 

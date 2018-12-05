@@ -13,13 +13,15 @@ import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment.NotificationFragmentListener;
 import nl.bramwinter.globus.models.Contact;
+import nl.bramwinter.globus.models.User;
 
 public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyNotificationsRecyclerViewAdapter.ViewHolder> {
 
     private final List<Contact> contacts;
+    private final List<User> users;
     private final NotificationsFragment.NotificationFragmentListener mListener;
 
-    public MyNotificationsRecyclerViewAdapter(List<Contact> contacts, NotificationFragmentListener listener) {
+    public MyNotificationsRecyclerViewAdapter(List<Contact> contacts, List<User> users, NotificationFragmentListener listener) {
         for (Contact contact : contacts) {
             // Don't show the contact if it's already accepted or you are the one who requested the contact
             if (contact.isAccepted() || contact.isInitiated()) {
@@ -27,6 +29,7 @@ public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyN
             }
         }
         this.contacts = contacts;
+        this.users = users;
         mListener = listener;
     }
 
@@ -40,7 +43,14 @@ public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyN
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.contact = contacts.get(position);
-//        holder.nameView.setText(contacts.get(position).getContactor().getFullName());
+        if (users != null) {
+            for (User user : users) {
+                if (user.getUuid().equals(holder.contact.getContactUuid())) {
+                    holder.nameView.setText(user.getEmail());
+                }
+            }
+        }
+
         holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest(holder.contact));
         holder.buttonReject.setOnClickListener(v -> RejectContactRequest(holder.contact));
 
