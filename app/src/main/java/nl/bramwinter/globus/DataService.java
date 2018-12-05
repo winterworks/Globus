@@ -93,7 +93,10 @@ public class DataService extends Service {
             if (contact.isAccepted()) {
                 addContactToUserList(contact);
             } else if (!contact.isInitiated()) {
-
+                // Contact is not yet accepted and not initiated by this user, so download the other user object.
+                db.collection("users").document(contact.getContactUuid()).get().addOnCompleteListener(userTask -> {
+                    addContactToUserList(contact);
+                });
             }
         }
     }
@@ -169,7 +172,7 @@ public class DataService extends Service {
     }
 
     private void addContactToUserList(Contact contact) {
-        DocumentReference documentReference = db.collection("users").document(String.valueOf(contact.getContactUuid()));
+        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
         documentReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
