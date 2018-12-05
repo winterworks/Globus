@@ -1,7 +1,5 @@
 package nl.bramwinter.globus.models;
 
-import android.util.LongSparseArray;
-
 import java.util.Map;
 
 public class User {

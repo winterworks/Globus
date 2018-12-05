@@ -58,7 +58,6 @@ import nl.bramwinter.globus.util.MyProperties;
 public class OverviewActivity extends AppCompatActivity implements
         LocationUpdatesFragment.locationsFragmentListener,
         MyLocationsFragment.MyLocationsFragmentListener,
-        MyLocationsFragment.MyLocationsPressListener,
         ContactsFragment.ContactFragmentListener,
         NotificationsFragment.NotificationFragmentListener,
         OnMapReadyCallback {
@@ -105,7 +104,7 @@ public class OverviewActivity extends AppCompatActivity implements
                             fragment = new ContactsFragment();
 
                             ContactsFragment contactsFragment = (ContactsFragment) fragment;
-                            contactsFragment.setUsersLiveData(dataService.getCurrentUsers());
+                            contactsFragment.setUsersLiveData(dataService.getCurrentContactUsers());
 
                             break;
                         case R.id.nav_locations_list:
@@ -170,8 +169,6 @@ public class OverviewActivity extends AppCompatActivity implements
                 }
             }
         });
-
-
     }
 
     public void getCurrentDeviceLocation() {
@@ -262,7 +259,27 @@ public class OverviewActivity extends AppCompatActivity implements
     public void ContactClickListener(User user) {
     }
 
+    @Override
+    public void ContactAddListener(String email) {
+        dataService.addMyContact(email);
+    }
+
+    @Override
+    public void ContactPressListener(User user) {
+        dataService.removeContactForUser(user);
+    }
+
     public void NotificationClickListener(Contact contact) {
+    }
+
+    @Override
+    public void NotificationAcceptListener(Contact contact) {
+        dataService.acceptContact(contact);
+    }
+
+    @Override
+    public void NotificationDeclineListener(Contact contact) {
+        dataService.removeContact(contact);
     }
 
     @Override

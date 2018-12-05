@@ -1,15 +1,29 @@
 package nl.bramwinter.globus.models;
 
+import java.util.Map;
+
 public class Contact {
 
     private String uuid;
-    private User contact;
+    private String contactUuid;
+    private boolean initiated;
     private boolean accepted;
 
-    public Contact(String uuid, User contact, boolean accepted) {
-        this.uuid = uuid;
-        this.contact = contact;
+    public Contact(String contactUuid, boolean accepted, boolean initiated) {
+        this.contactUuid = contactUuid;
         this.accepted = accepted;
+        this.initiated = initiated;
+    }
+
+    public Contact(Map map) {
+        try {
+            this.uuid = (String) map.get("uuid");
+            this.contactUuid = (String) map.get("contactUuid");
+            this.initiated = (boolean) map.get("initiated");
+            this.accepted = (boolean) map.get("accepted");
+        } catch (Exception e) {
+
+        }
     }
 
     public String getUuid() {
@@ -20,12 +34,12 @@ public class Contact {
         this.uuid = uuid;
     }
 
-    public User getContact() {
-        return contact;
+    public String getContactUuid() {
+        return contactUuid;
     }
 
-    public void setContact(User contact) {
-        this.contact = contact;
+    public void setContactUuid(String contactUuid) {
+        this.contactUuid = contactUuid;
     }
 
     public boolean isAccepted() {
@@ -34,5 +48,13 @@ public class Contact {
 
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
+    }
+
+    public boolean isInitiated() {
+        return initiated;
+    }
+
+    public void setInitiated(boolean initiated) {
+        this.initiated = initiated;
     }
 }

@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import java.util.List;
 
@@ -31,6 +35,8 @@ public class ContactsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private ContactFragmentListener mListener;
+    private Button buttonAddContact;
+    private EditText editTextEmail;
 
     private MutableLiveData<List<User>> usersLiveData;
 
@@ -66,18 +72,29 @@ public class ContactsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        if (view.findViewById(R.id.contact_list) instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            RecyclerView recyclerView = view.findViewById(R.id.contact_list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+
             Observer<List<User>> userObserver = users -> recyclerView.setAdapter(new MyUserRecyclerViewAdapter(users, mListener));
             usersLiveData.observe(this, userObserver);
         }
+
         return view;
+    }
+
+    //Code to slect and View in a fragment from: https://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        buttonAddContact = view.findViewById(R.id.buttonAddContact);
+        editTextEmail = view.findViewById(R.id.editTextEmail);
+        buttonAddContact.setOnClickListener(fragmentView -> mListener.ContactAddListener(editTextEmail.getText().toString()));
     }
 
     public void setUsersLiveData(MutableLiveData<List<User>> userLiveData) {
@@ -113,5 +130,9 @@ public class ContactsFragment extends Fragment {
      */
     public interface ContactFragmentListener {
         void ContactClickListener(User user);
+
+        void ContactAddListener(String email);
+
+        void ContactPressListener(User user);
     }
 }
