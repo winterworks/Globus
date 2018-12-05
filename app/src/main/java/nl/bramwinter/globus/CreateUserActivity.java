@@ -37,15 +37,14 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
 
         status = findViewById(R.id.textViewStatus);
         email = findViewById(R.id.editTextEmail);
-        pw = findViewById(R.id.editTextPassword);
+        pw = findViewById(R.id.editTextPW);
         fName = findViewById(R.id.editTextFirstName);
         lName = findViewById(R.id.editTextLastName);
         cancel = findViewById(R.id.buttonCancel);
         login = findViewById(R.id.buttonLogin);
 
         findViewById(R.id.buttonCancel).setOnClickListener(this);
-      //  findViewById(R.id.buttonLogin).setOnClickListener(this);
-      //  findViewById(R.id.buttonCreate).setOnClickListener(this);
+        findViewById(R.id.buttonCreateUser).setOnClickListener(this);
     }
 
     @Override
@@ -85,42 +84,7 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         return valid;
     }
 
-    private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
-            return;
-        }
 
-     //   showProgressDialog();
-
-        // [START sign_in_with_email]
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(CreateUserActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                        if (!task.isSuccessful()) {
-                            status.setText(R.string.auth_failed);
-                        }
-                      //  hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END sign_in_with_email]
-    }
 
     private void cancel(){
         this.finish();
@@ -163,8 +127,8 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.buttonCreate) {
-
+        if (i == R.id.buttonCreateUser) {
+            createAccount(email.getText().toString(), pw.getText().toString());
         }
         else if (i == R.id.buttonCancel){
             cancel();
