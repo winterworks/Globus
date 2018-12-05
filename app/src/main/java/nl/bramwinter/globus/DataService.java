@@ -90,14 +90,15 @@ public class DataService extends Service {
         updateContacts();
         for (Contact contact : currentUser.getContacts().values()) {
             // Only download the actual contact(user) if the request has been accepted.
-            if (contact.isAccepted()) {
+            if (contact.isAccepted() || !contact.isInitiated()) {
                 addContactToUserList(contact);
-            } else if (!contact.isInitiated()) {
-                // Contact is not yet accepted and not initiated by this user, so download the other user object.
-                db.collection("users").document(contact.getContactUuid()).get().addOnCompleteListener(userTask -> {
-                    addContactToUserList(contact);
-                });
             }
+//            else if () {
+//                // Contact is not yet accepted and not initiated by this user, so download the other user object.
+//                db.collection("users").document(contact.getContactUuid()).get().addOnCompleteListener(userTask -> {
+//                    addContactToUserList(contact);
+//                });
+//            }
         }
     }
 
@@ -116,13 +117,13 @@ public class DataService extends Service {
                             switch (dc.getType()) {
                                 case ADDED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted()) {
+                                    if (contact.isAccepted() || !contact.isInitiated()) {
                                         addContactToUserList(contact);
                                     }
                                     break;
                                 case MODIFIED:
                                     currentUser.getContacts().put(contact.getUuid(), contact);
-                                    if (contact.isAccepted()) {
+                                    if (contact.isAccepted() || !contact.isInitiated()) {
                                         addContactToUserList(contact);
                                     }
                                     break;

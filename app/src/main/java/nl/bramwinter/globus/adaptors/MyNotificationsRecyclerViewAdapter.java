@@ -45,7 +45,7 @@ public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyN
         holder.contact = contacts.get(position);
         if (users != null) {
             for (User user : users) {
-                if (user.getUuid() == holder.contact.getContactUuid()) {
+                if (user.getUuid().equals(holder.contact.getContactUuid())) {
                     holder.nameView.setText(user.getEmail());
                 }
             }
