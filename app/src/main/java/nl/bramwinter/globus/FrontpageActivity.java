@@ -52,7 +52,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
 
         auth = FirebaseAuth.getInstance();
 
-        statusTextView = findViewById(R.id.textView3);
+        statusTextView = findViewById(R.id.textViewStatus);
         emailField = findViewById(R.id.editTextEmail);
         passwordField = findViewById(R.id.editTextPassword);
         logIn = findViewById(R.id.buttonLogin);
@@ -60,6 +60,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         googleLogin = findViewById(R.id.googlelogin);
 
         findViewById(R.id.googlelogin).setOnClickListener(this);
+        findViewById(R.id.buttonCreate).setOnClickListener(this);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -80,52 +81,17 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     }
     // [END on_start_check_user]
 
-    private void updateUIGoo(FirebaseUser user) {
-
-        if (user != null) {
-
-        } else {
-            statusTextView.setText(R.string.signed_out);
-
-            findViewById(R.id.googlelogin).setVisibility(View.VISIBLE);
-        }
-    }
-
-
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            ((TextView) findViewById(R.id.textView3)).setText(
+            ((TextView) findViewById(R.id.textViewStatus)).setText(
                     "User ID: " + user.getUid());
             Intent intent = new Intent(this, OverviewActivity.class);
                     startActivity(intent);
                     finish();
         } else {
-            ((TextView) findViewById(R.id.textView3)).setText(
+            ((TextView) findViewById(R.id.textViewStatus)).setText(
                     "Error: sign in fucking failed.");
         }
-    }
-
-    public void createAccount(String email, String password){
-        auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = auth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(FrontpageActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
     }
 
     @Override
@@ -167,7 +133,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                       } else {
                           // If sign in fails, display a message to the user.
                           Log.w(TAG, "signInWithCredential:failure", task.getException());
-                          Snackbar.make(findViewById(R.id.textView3), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                          Snackbar.make(findViewById(R.id.textViewStatus), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                           updateUI(null);
                       }
 
@@ -175,28 +141,6 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                   }
               });
   }
-
-  private boolean validateForm() {
-        boolean valid = true;
-
-        String email = emailField.getText().toString();
-        if (TextUtils.isEmpty(email)) {
-            emailField.setError("Required.");
-            valid = false;
-        } else {
-            emailField.setError(null);
-        }
-
-        String password = passwordField.getText().toString();
-        if (TextUtils.isEmpty(password)) {
-            passwordField.setError("Required.");
-            valid = false;
-        } else {
-            passwordField.setError(null);
-        }
-
-        return valid;
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

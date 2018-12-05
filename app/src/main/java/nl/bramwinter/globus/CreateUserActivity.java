@@ -44,7 +44,8 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         login = findViewById(R.id.buttonLogin);
 
         findViewById(R.id.buttonCancel).setOnClickListener(this);
-        findViewById(R.id.buttonLogin).setOnClickListener(this);
+      //  findViewById(R.id.buttonLogin).setOnClickListener(this);
+      //  findViewById(R.id.buttonCreate).setOnClickListener(this);
     }
 
     @Override
@@ -163,10 +164,13 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.buttonCreate) {
-            createAccount(email.getText().toString(), pw.getText().toString());
+
         }
         else if (i == R.id.buttonCancel){
             cancel();
+        }
+        else if(i == R.id.buttonLogin){
+
         }
     }
 
