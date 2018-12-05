@@ -2,6 +2,7 @@ package nl.bramwinter.globus;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     static final String TAG = "authentification";
 
     private static int RC_SIGN_IN = 9001;
+    private static int REQUEST_CODE_CREATE_USER = 9002;
 
     private TextView statusTextView;
     private EditText emailField;
@@ -79,19 +81,13 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     // [END on_start_check_user]
 
     private void updateUIGoo(FirebaseUser user) {
-       // hideProgressDialog();
-        if (user != null) {
-           // statusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-           // detailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
-            //findViewById(R.id.googlelogin).setVisibility(View.GONE);
-            //findViewById(R.id.signOutAndDisconnect).setVisibility(View.VISIBLE);
+        if (user != null) {
+
         } else {
             statusTextView.setText(R.string.signed_out);
-            //mDetailTextView.setText(null);
 
             findViewById(R.id.googlelogin).setVisibility(View.VISIBLE);
-           // findViewById(R.id.signOutAndDisconnect).setVisibility(View.GONE);
         }
     }
 
@@ -138,54 +134,22 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         if (i == R.id.googlelogin) {
             signIn();
         }
-        /**else if (i == R.id.signOutButton) {
-            signOut();
-        } else if (i == R.id.disconnectButton) {
-            revokeAccess();
-        }**/
+        else if(i == R.id.buttonCreate){
+            createUser();
+        }
+        else if (i == R.id.buttonLogin){}
+    }
+
+    private void createUser(){
+        Intent intent = new Intent(FrontpageActivity.this, CreateUserActivity.class);
+        //startActivityForResult(intent, 9002);
+        startActivity(intent);
     }
 
     private void signIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
-  /**  private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
-            return;
-        }
-
-        //showProgressDialog();
-
-        // [START sign_in_with_email]
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = auth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(FrontpageActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                        if (!task.isSuccessful()) {
-                            statusTextView.setText(R.string.auth_failed);
-                        }
-                       // hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END sign_in_with_email]
- }    **/
 
   private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
       Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -251,21 +215,10 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                 // ...
             }
         }
-    }
-/**
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            // Signed in successfully, show authenticated UI.
-            updateUIGoo(account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            updateUI(null);
+        else if(requestCode == REQUEST_CODE_CREATE_USER){
+
         }
     }
-**/
 
 }
