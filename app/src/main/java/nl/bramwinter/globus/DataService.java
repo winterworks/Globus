@@ -4,6 +4,7 @@ import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -38,12 +39,15 @@ public class DataService extends Service {
     private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
+    private final Handler handler;
 
     public DataService() {
         db = FirebaseFirestore.getInstance();
         getCurrentUser();
 
         binder = new DataServiceBinder();
+
+        handler = new Handler();
     }
 
     @Override
@@ -213,7 +217,7 @@ public class DataService extends Service {
     }
 
     public void updateContactUsers() {
-        contactUsersLiveData.setValue(new ArrayList<>(contactUsers.values()));
+        contactUsersLiveData.postValue(new ArrayList<>(contactUsers.values()));
     }
 
     public void updateContactUsersRequested() {
