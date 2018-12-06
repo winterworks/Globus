@@ -88,13 +88,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         MapsInitializer.initialize(getContext());
 
-        // TODO use observeForever because for some reasone observe does not persist
-        Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
-        locationLiveData.observeForever(locationsObserver);
-
-        Observer<List<User>> userObserver = users -> showLocationsForUser(users);
-        contactUsersLiveData.observeForever(userObserver);
-
         getMapPermissions();
         Fragment fragment = new SupportMapFragment();
         ((SupportMapFragment) fragment).getMapAsync(MapFragment.this);
@@ -137,12 +130,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        // TODO cleanup observers
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
+        locationLiveData.observe(this, locationsObserver);
+
+        Observer<List<User>> userObserver = users -> showLocationsForUser(users);
+        contactUsersLiveData.observe(this, userObserver);
 
         if (mLocationPermissionGranted) {
             getCurrentDeviceLocation();
@@ -258,7 +256,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFabClick(LatLng latLng);
     }
 }
