@@ -309,6 +309,7 @@ public class DataService extends Service {
                     externalContact.setAccepted(true);
 
                     db.collection("users").document(contact.getContactUuid()).collection("contacts").document(document.getId()).set(externalContact);
+                    acceptContactCurrentUser(contact);
                 } else {
                     Log.d(TAG, "User not found");
                 }
@@ -316,7 +317,9 @@ public class DataService extends Service {
                 Log.d(TAG, "Exception");
             }
         });
+    }
 
+    private void acceptContactCurrentUser(Contact contact) {
         // Accept the contact for the current user
         contact.setAccepted(true);
         db.collection("users").document(user.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
