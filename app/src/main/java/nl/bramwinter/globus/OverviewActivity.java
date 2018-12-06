@@ -11,20 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -65,7 +54,7 @@ public class OverviewActivity extends AppCompatActivity implements
                         case R.id.nav_updates:
                             fragment = new LocationUpdatesFragment();
 
-                            ((LocationUpdatesFragment) fragment).setLocationsLiveData(dataService.getMyLocations());
+                            ((LocationUpdatesFragment) fragment).setContactsUsersLiveData(dataService.getContactUsers());
 
                             break;
                         case R.id.nav_notifications:

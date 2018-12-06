@@ -46,7 +46,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");
         String readableDate = formatter.format(locations.get(position).getAddedAt());
-        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.added_add), readableDate));
+        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.added_at), readableDate));
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {

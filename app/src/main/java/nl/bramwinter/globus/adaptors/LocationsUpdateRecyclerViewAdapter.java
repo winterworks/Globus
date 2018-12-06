@@ -9,20 +9,24 @@ import android.widget.TextView;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
 import nl.bramwinter.globus.models.Location;
+import nl.bramwinter.globus.models.User;
 import nl.bramwinter.globus.util.MyProperties;
 
 public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<LocationsUpdateRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Location> locations;
+    private final List<Location> locations = new ArrayList<>();
     private final LocationUpdatesFragment.locationsFragmentListener mListener;
 
-    public LocationsUpdateRecyclerViewAdapter(List<Location> items, LocationUpdatesFragment.locationsFragmentListener listener) {
-        locations = items;
+    public LocationsUpdateRecyclerViewAdapter(List<User> users, LocationUpdatesFragment.locationsFragmentListener listener) {
+        for (User user : users) {
+            this.locations.addAll(user.getLocations().values());
+        }
         mListener = listener;
     }
 
@@ -36,10 +40,9 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.location = locations.get(position);
-        String titleText = locations.get(position).getName() + " → " + locations.get(position).getName();
-        holder.textTitle.setText(titleText);
-        // TODO get the username from the user
-        holder.textUsername.setText("user");
+        holder.textTitle.setText(locations.get(position).getName());
+        // TODO get username
+//        holder.textUsername.setText(locations.get(position).getName());
         Integer iconResource = locations.get(position).getIcon();
         if (iconResource != null) {
             holder.imageViewIcon.setImageResource(MyProperties.iconMap.get(iconResource));
@@ -47,7 +50,7 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");
         String readableDate = formatter.format(locations.get(position).getAddedAt());
-        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.user_moved_on_date), readableDate));
+        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.added_at), readableDate));
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
