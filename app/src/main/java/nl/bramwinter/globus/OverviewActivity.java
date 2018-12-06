@@ -11,20 +11,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -46,6 +37,8 @@ public class OverviewActivity extends AppCompatActivity implements
     static final int ADD_LOCATION_REQUEST = 195;
     static final int EDIT_LOCATION_REQUEST = 196;
     BottomNavigationView buttonNavigationUpdate;
+
+    private FirebaseAuth auth;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -93,7 +86,6 @@ public class OverviewActivity extends AppCompatActivity implements
 
                     return true;
                 }
-
             };
 
     @Override
@@ -202,5 +194,36 @@ public class OverviewActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.top_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        boolean overrideDefaultHandling = false;
+        switch (id){
+            case R.id.sign_out:
+                overrideDefaultHandling = true;
+                signOut();
+                break;
+        }
+        if(overrideDefaultHandling == true){
+            return true;
+        }
+        else
+        {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void signOut() {
+        auth = FirebaseAuth.getInstance();
+        auth.signOut();
+        finish();
+        Intent intent = new Intent(this, FrontpageActivity.class);
+        startActivity(intent);
+    }
 }

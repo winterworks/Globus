@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Parts of this code is taken/inspired from Googles firebase guide and Facebooks authentication guide
+ * Parts of this code is taken/inspired from Firebase's guide to authentication, including google auth and facebook auth
  */
 
 public class FrontpageActivity extends AppCompatActivity implements View.OnClickListener {
