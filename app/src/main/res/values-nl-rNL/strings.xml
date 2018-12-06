@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">Globus</string>
+    <string name="title_activity_map_view">Kaart</string>
+
+    <string name="navigation_map">Start</string>
+    <string name="latest_updates">Weizigingen</string>
+    <string name="contacts">Contacten</string>
+    <string name="notifications">Notificaties</string>
+    <string name="title_activity_maps">Kaart</string>
+    <string name="locations">Locaties</string>
+    <string name="description">Omschrijving</string>
+
+    <string name="old_location">Oude locatie</string>
+    <string name="new_location">Nieuwe locatie</string>
+    <string name="user">Gebruiker</string>
+    <string name="user_moved_on_date">bewerkt op: %1$s</string>
+    <string name="added_add">toegevoegd op: %1$s</string>
+
+    <string name="name">Naam</string>
+    <string name="email">Email</string>
+
+    <string name="add">Toevoegen</string>
+    <string name="edit">Bewerken</string>
+    <string name="update">Bijwerken</string>
+    <string name="accept">Accepteren</string>
+    <string name="reject">Weigeren</string>
+
+    <string name="create_user">Maak een nieuwe gebruiker</string>
+    <string name="log_in">Log in</string>
+    <string name="password">Wachtwoord</string>
+    <string name="email_hint">Typ uw mail address</string>
+    <string name="auth_failed">Inloggen mislukt</string>
+    <string name="signed_out">Uitgelogd</string>
+
+    <string name="lastname">Achternaam</string>
+    <string name="firstname">Voornaam</string>
+    <string name="cancel">Annuleren</string>
+    <string name="status">Status</string>
+    <string name="FrontpageMessage">Log in met je gegevens \n of kies een andere login methode</string>
+    <string name="type_in_your_password">Voer uw wachtwoord in</string>
+
+    <string name="facebook_app_id">273035953395250</string>
+    <string name="fb_login_protocol_scheme">fb273035953395250</string>
+</resources>
