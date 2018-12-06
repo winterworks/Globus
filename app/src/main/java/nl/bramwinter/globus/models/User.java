@@ -10,6 +10,8 @@ public class User {
     private Map<String, Location> locations;
     private Map<String, Contact> contacts;
 
+    public User() {}
+
     public User(String uuid, String name, String email, Map<String, Location> locations, Map<String, Contact> contacts) {
         this.uuid = uuid;
         this.name = name;

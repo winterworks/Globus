@@ -1,11 +1,20 @@
 package nl.bramwinter.globus;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,6 +25,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +33,7 @@ import java.util.List;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
+import nl.bramwinter.globus.util.Globals;
 
 public class DataService extends Service {
 
@@ -192,6 +203,12 @@ public class DataService extends Service {
                     User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
                     contactUsersRequested.put(document.getId(), newUser);
                     updateContactUsersRequested();
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startMyOwnForeground("User " + newUser.getName() + " has sent a friend request");
+                    } else {
+                        startForeground(1, new Notification());
+                    }
+
                 }
             }
         });
@@ -361,4 +378,27 @@ public class DataService extends Service {
             return DataService.this;
         }
     }
+
+    // Source: https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startMyOwnForeground(String message){
+        String NOTIFICATION_CHANNEL_ID = Globals.NOTIFICATION_CHANNEL;
+        String channelName = Globals.CHANNEL_NAME;
+        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        notificationChannel.setLightColor(Color.BLUE);
+        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        manager.createNotificationChannel(notificationChannel);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(message)
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+        startForeground(Globals.NOTIFICATION_ID, notification);
+    }
+
 }
