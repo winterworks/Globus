@@ -39,4 +39,10 @@
     <string name="status">Status</string>
     <string name="FrontpageMessage">Sign in with your credentials or use \n alternate sign in method</string>
     <string name="type_in_your_password">Type in your password</string>
+
+    <string name="facebook_app_id">273035953395250</string>
+    <string name="fb_login_protocol_scheme">fb273035953395250</string>
+
+
+
 </resources>
