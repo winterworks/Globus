@@ -107,34 +107,6 @@ public class OverviewActivity extends AppCompatActivity implements
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         setupDataService();
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
-        Log.d("Celik", user.getUid());
-        DocumentReference documentReference = db.collection("users").document(String.valueOf(user.getUid()));
-
-        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-
-                    if (document.exists()) {
-                        Log.d("Celik", "User" + user.getEmail() + " exists");
-                    } else {
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("name", user.getDisplayName());
-                        data.put("email", user.getEmail());
-
-                        db.collection("users").document(user.getUid()).set(data);
-                    }
-                } else {
-                    Log.d("Celik", "Exception");
-                }
-            }
-        });
     }
 
     private void openManageLocationsActivity(Location location) {

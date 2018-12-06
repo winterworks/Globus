@@ -4,9 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,7 +25,6 @@ public class ManageLocations extends AppCompatActivity {
 
     private Button buttonAddLocation;
     private Button buttonCancel;
-    private Button buttonEdit;
     private EditText editLocationDescription;
     private TableLayout radioButtonsTable;
     private RadioGroup radioGroup;
@@ -42,7 +41,6 @@ public class ManageLocations extends AppCompatActivity {
 
         buttonAddLocation = findViewById(R.id.buttonAdd);
         buttonCancel = findViewById(R.id.buttonCancel);
-        buttonEdit = findViewById(R.id.buttonEdit);
         radioButtonsTable = findViewById(R.id.radioButtonsTable);
         radioGroup = findViewById(R.id.radioGroupSelectIcon);
         editLocationDescription = findViewById(R.id.editLocationDescription);
@@ -54,7 +52,6 @@ public class ManageLocations extends AppCompatActivity {
     private void setupUi() {
         buttonCancel.setOnClickListener(v -> cancelActivity());
         buttonAddLocation.setOnClickListener(v -> createNewLocation());
-        buttonEdit.setVisibility(View.GONE);
 
         int index = 0;
         for (Integer imageResourceId : MyProperties.iconMap) {
@@ -79,11 +76,8 @@ public class ManageLocations extends AppCompatActivity {
         radioGroup.check(location.getIcon());
         editLocationDescription.setText(location.getName());
 
-        buttonAddLocation.setOnClickListener(v -> updateLocation(location));
-        buttonEdit.setOnClickListener(v -> editLocation(location));
-        buttonEdit.setVisibility(View.VISIBLE);
-
-        buttonAddLocation.setText(R.string.update);
+        buttonAddLocation.setOnClickListener(v -> editLocation(location));
+        buttonAddLocation.setText(R.string.edit);
     }
 
     private void cancelActivity() {
@@ -106,20 +100,6 @@ public class ManageLocations extends AppCompatActivity {
         finish();
     }
 
-    // Update a location, keep the old one and add a new one
-    private void updateLocation(Location location) {
-        Location newLocation = new Location(location.getLatitude(), location.getLongitude(), new Date(), location.getName(), location.getIcon());
-        newLocation.setName(editLocationDescription.getText().toString());
-        newLocation.setIcon(radioGroup.getCheckedRadioButtonId());
-
-        dataService.addMyLocation(newLocation);
-
-        Intent intent = getIntent();
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
-    // Edit a location, do not create a new one
     private void editLocation(Location location) {
         location.setName(editLocationDescription.getText().toString());
         location.setIcon(radioGroup.getCheckedRadioButtonId());
@@ -136,7 +116,6 @@ public class ManageLocations extends AppCompatActivity {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
                 if (getIntent().hasExtra(MyProperties.locationId)) {
-                    Intent intent = getIntent();
                     location = dataService.getMyLocationsById(getIntent().getStringExtra(MyProperties.locationId));
                     showLocationInfoInUi(location);
                 }

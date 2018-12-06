@@ -1,10 +1,10 @@
 package nl.bramwinter.globus;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +17,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -34,11 +33,15 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- *
  * Parts of this code is taken/inspired from Googles firebase guide and Facebooks authentication guide
- *
  */
 
 public class FrontpageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -67,12 +70,12 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_frontpage);
 
         //FAcebooks sdk's app activation helper:
-      /**
-       * FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
-       **/
+        /**
+         * FacebookSdk.sdkInitialize(getApplicationContext());
+         AppEventsLogger.activateApp(this);
+         **/
 
-      //facebook callback manager
+        //facebook callback manager
         callbackManager = CallbackManager.Factory.create();
 
         auth = FirebaseAuth.getInstance();
@@ -133,15 +136,42 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         if (user != null) {
             ((TextView) findViewById(R.id.textViewStatus)).setText(
                     "User ID: " + user.getUid());
+
+            checkIfFireStoreUserExists();
+
             Intent intent = new Intent(this, OverviewActivity.class);
-                    startActivity(intent);
-                    finish();
+            startActivity(intent);
+            finish();
+        } else {
+            ((TextView) findViewById(R.id.textViewStatus)).setText(
+                    getString(R.string.FrontpageMessage));
         }
-        else
-            {
-                ((TextView) findViewById(R.id.textViewStatus)).setText(
-                        getString(R.string.FrontpageMessage));
+    }
+
+    private void checkIfFireStoreUserExists() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        DocumentReference documentReference = db.collection("users").document(String.valueOf(user.getUid()));
+
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    Log.d(TAG, "User" + user.getEmail() + " exists");
+                } else {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("name", user.getDisplayName());
+                    data.put("email", user.getEmail());
+
+                    db.collection("users").document(user.getUid()).set(data);
+                }
+            } else {
+                Log.d(TAG, "Exception");
             }
+        });
     }
 
     @Override
@@ -149,16 +179,14 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         int i = v.getId();
         if (i == R.id.googlelogin) {
             signIn();
-        }
-        else if(i == R.id.buttonCreate){
+        } else if (i == R.id.buttonCreate) {
             createUser();
-        }
-        else if (i == R.id.buttonLogin){
+        } else if (i == R.id.buttonLogin) {
             signInManually(emailField.getText().toString(), passwordField.getText().toString());
         }
     }
 
-    private boolean validateForm(){
+    private boolean validateForm() {
         boolean valid = true;
 
         String email = emailField.getText().toString();
@@ -240,7 +268,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         // [END sign_in_with_email]
     }
 
-    private void createUser(){
+    private void createUser() {
         Intent intent = new Intent(FrontpageActivity.this, CreateUserActivity.class);
         //startActivityForResult(intent, 9002); //maybe better this way?
         startActivity(intent);
@@ -252,30 +280,30 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-  private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-      Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
-      AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-      auth.signInWithCredential(credential)
-              .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                  @Override
-                  public void onComplete(@NonNull Task<AuthResult> task) {
-                      if (task.isSuccessful()) {
-                          // Sign in success, update UI with the signed-in user's information
-                          Log.d(TAG, "signInWithCredential:success");
-                          FirebaseUser user = auth.getCurrentUser();
-                          updateUI(user);
-                      } else {
-                          // If sign in fails, display a message to the user.
-                          Log.w(TAG, "signInWithCredential:failure", task.getException());
-                          Snackbar.make(findViewById(R.id.textViewStatus), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                          updateUI(null);
-                      }
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        auth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            FirebaseUser user = auth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Snackbar.make(findViewById(R.id.textViewStatus), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
 
-                      // ...
-                  }
-              });
-  }
+                        // ...
+                    }
+                });
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -296,9 +324,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                 Log.w(TAG, "Google sign in failed", e);
                 // ...
             }
-        }
-
-        else if(requestCode == REQUEST_CODE_CREATE_USER){
+        } else if (requestCode == REQUEST_CODE_CREATE_USER) {
 
         }
     }
