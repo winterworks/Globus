@@ -1,14 +1,10 @@
 package nl.bramwinter.globus;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,13 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import java.util.Date;
-import java.util.concurrent.ThreadLocalRandom;
 
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.util.MyProperties;
@@ -147,7 +137,7 @@ public class ManageLocations extends AppCompatActivity {
                 dataService = ((DataService.DataServiceBinder) service).getService();
                 if (getIntent().hasExtra(MyProperties.locationId)) {
                     Intent intent = getIntent();
-                    location = dataService.getOneOfMyLocations(getIntent().getStringExtra(MyProperties.locationId));
+                    location = dataService.getMyLocationsById(getIntent().getStringExtra(MyProperties.locationId));
                     showLocationInfoInUi(location);
                 }
             }

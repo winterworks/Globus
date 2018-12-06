@@ -29,12 +29,13 @@ public class DataService extends Service {
     private static final String TAG = "DataService";
 
     private FirebaseFirestore db;
-    private User currentUser;
+    private DocumentReference userReference;
+
+    private User user;
     private HashMap<String, User> contactUsers = new HashMap<>();
     private HashMap<String, User> contactUsersRequested = new HashMap<>();
     private MutableLiveData<List<User>> contactUsersLiveData = new MutableLiveData<>();
     private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
-    private MutableLiveData<List<Location>> locationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
 
@@ -52,14 +53,14 @@ public class DataService extends Service {
 
     private void getCurrentUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = db.collection("users").document(user.getUid());
+        userReference = db.collection("users").document(user.getUid());
 
-        documentReference.get().addOnCompleteListener(task -> {
+        userReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    setDataFromFireBase(documentReference, document);
+                    this.user = new User(document.getId(), document.getString("name"), document.getString("email"), new HashMap<>(), new HashMap<>());
+                    setUserDataFromFireBase();
                 } else {
                     Log.d(TAG, "User not found");
                 }
@@ -69,11 +70,9 @@ public class DataService extends Service {
         });
     }
 
-    private void setDataFromFireBase(DocumentReference documentReference, DocumentSnapshot document) {
-        currentUser = new User(document.getId(), document.getString("name"), document.getString("email"), new HashMap<>(), new HashMap<>());
-
-        // Make a separate request for the locations of this user
-        documentReference.collection("locations").get().addOnCompleteListener(locationsTask -> {
+    private void setUserDataFromFireBase() {
+        // Get all the locations for this user and add them to the model
+        userReference.collection("locations").get().addOnCompleteListener(locationsTask -> {
             if (locationsTask.isSuccessful()) {
 
                 HashMap<String, Location> locations = new HashMap<>();
@@ -83,29 +82,16 @@ public class DataService extends Service {
                     locations.put(locationDocument.getId(), location);
                 }
 
-                currentUser.setLocations(locations);
+                user.setLocations(locations);
                 updateMyLocations();
             }
         });
 
-        setCurrentUserContactsListener(documentReference);
-        updateContacts();
-        for (Contact contact : currentUser.getContacts().values()) {
-            // Only download the actual contact(user) if the request has been accepted.
-            AddContactToLists(contact);
-        }
+        setUserContactsListener();
     }
 
-    private void AddContactToLists(Contact contact) {
-        if (contact.isAccepted()) {
-            addContactToUserList(contact);
-        } else if (!contact.isInitiated()) {
-            addContactToUserRequestedList(contact);
-        }
-    }
-
-    private void setCurrentUserContactsListener(DocumentReference documentReference) {
-        documentReference.collection("contacts")
+    private void setUserContactsListener() {
+        userReference.collection("contacts")
                 .addSnapshotListener((value, e) -> {
                     if (e != null) {
                         Log.w(TAG, "Listen failed.", e);
@@ -118,23 +104,47 @@ public class DataService extends Service {
                             contact.setUuid(dc.getDocument().getId());
                             switch (dc.getType()) {
                                 case ADDED:
-                                    currentUser.getContacts().put(contact.getUuid(), contact);
+                                    user.getContacts().put(contact.getUuid(), contact);
                                     AddContactToLists(contact);
                                     break;
                                 case MODIFIED:
-                                    currentUser.getContacts().put(contact.getUuid(), contact);
+                                    user.getContacts().put(contact.getUuid(), contact);
                                     AddContactToLists(contact);
                                     break;
                                 case REMOVED:
-                                    currentUser.getContacts().remove(contact.getUuid());
+                                    user.getContacts().remove(contact.getUuid());
+                                    contactUsers.remove(contact.getContactUuid());
+                                    updateContactUsers();
                                     break;
                             }
-
                             updateContacts();
                         }
                     }
-
                 });
+    }
+
+    private void AddContactToLists(Contact contact) {
+        if (contact.isAccepted()) {
+            addContactToUserList(contact);
+        } else if (!contact.isInitiated()) {
+            addContactToUserRequestedList(contact);
+        }
+    }
+
+    private void addContactToUserList(Contact contact) {
+        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+
+                if (document.exists()) {
+                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
+                    contactUsers.put(document.getId(), newUser);
+                    setContactUserLocationsListener(newUser);
+                    updateContactUsers();
+                }
+            }
+        });
     }
 
     private void setContactUserLocationsListener(User user) {
@@ -162,26 +172,10 @@ public class DataService extends Service {
                                     break;
                             }
 
-                            updateCurrentContactUsers();
+                            updateContactUsers();
                         }
                     }
                 });
-    }
-
-    private void addContactToUserList(Contact contact) {
-        DocumentReference documentReference = db.collection("users").document(contact.getContactUuid());
-        documentReference.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-
-                if (document.exists()) {
-                    User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
-                    contactUsers.put(document.getId(), newUser);
-                    setContactUserLocationsListener(newUser);
-                    updateCurrentContactUsers();
-                }
-            }
-        });
     }
 
     private void addContactToUserRequestedList(Contact contact) {
@@ -193,85 +187,83 @@ public class DataService extends Service {
                 if (document.exists()) {
                     User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
                     contactUsersRequested.put(document.getId(), newUser);
-                    updateCurrentContactUsersRequested();
+                    updateContactUsersRequested();
                 }
             }
         });
     }
 
     /*
-     Functions to manage LiveData
+     Functions to retrieve and update LiveData
       */
-    public MutableLiveData<List<User>> getCurrentContactUsersRequested() {
+    public MutableLiveData<List<User>> getContactUsersRequested() {
         return contactUsersRequestedLiveData;
     }
 
-    public MutableLiveData<List<User>> getCurrentContactUsers() {
+    public MutableLiveData<List<User>> getContactUsers() {
         return contactUsersLiveData;
     }
 
-    public MutableLiveData<List<Location>> getCurrentLocations() {
-        return locationsLiveData;
-    }
-
-    public MutableLiveData<List<Contact>> getCurrentContacts() {
+    public MutableLiveData<List<Contact>> getContacts() {
         return contactsLiveData;
     }
 
-    public MutableLiveData<List<Location>> getMyCurrentLocations() {
+    public MutableLiveData<List<Location>> getMyLocations() {
         return myLocationsLiveData;
     }
 
-    public void updateCurrentContactUsers() {
+    public void updateContactUsers() {
         contactUsersLiveData.setValue(new ArrayList<>(contactUsers.values()));
     }
 
-    public void updateCurrentContactUsersRequested() {
+    public void updateContactUsersRequested() {
         contactUsersRequestedLiveData.setValue(new ArrayList<>(contactUsersRequested.values()));
     }
 
     public void updateContacts() {
-        contactsLiveData.setValue(new ArrayList<>(currentUser.getContacts().values()));
+        contactsLiveData.setValue(new ArrayList<>(user.getContacts().values()));
     }
 
     public void updateMyLocations() {
-        myLocationsLiveData.setValue(new ArrayList<>(currentUser.getLocations().values()));
+        myLocationsLiveData.setValue(new ArrayList<>(user.getLocations().values()));
     }
 
     /*
      My locations
       */
-    public Location getOneOfMyLocations(String uuid) {
-        return currentUser.getLocations().get(uuid);
+    public Location getMyLocationsById(String uuid) {
+        return user.getLocations().get(uuid);
     }
 
     public void editMyLocation(Location location) {
-        currentUser.getLocations().remove(location.getUuid());
-        currentUser.getLocations().put(location.getUuid(), location);
+        user.getLocations().remove(location.getUuid());
+        user.getLocations().put(location.getUuid(), location);
         updateMyLocations();
     }
 
     public void addMyLocation(Location location) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String id = db.collection("users").document(currentUser.getUuid()).collection("locations").document().getId();
-        db.collection("users").document(currentUser.getUuid()).collection("locations").document(id).set(location);
+        String id = db.collection("users").document(user.getUuid()).collection("locations").document().getId();
+        db.collection("users").document(user.getUuid()).collection("locations").document(id).set(location);
 
         location.setUuid(id);
-        currentUser.getLocations().put(id, location);
+        user.getLocations().put(id, location);
         updateMyLocations();
 
     }
 
     public void removeMyLocation(Location location) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        currentUser.getLocations().remove(location.getUuid());
+        this.user.getLocations().remove(location.getUuid());
         db.collection("users").document(user.getUid()).collection("locations").document(location.getUuid()).delete();
 
         updateMyLocations();
     }
 
-    // My contacts
-    public void addMyContact(String email) {
+    /*
+     My contacts
+     */
+    public void addContact(String email) {
         // Get the user belonging to the email
         Query userQuery = db.collection("users").whereEqualTo("email", email);
         userQuery.get().addOnCompleteListener(task -> {
@@ -279,18 +271,18 @@ public class DataService extends Service {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
                 if (document.exists()) {
                     // Check if the current user already has a contact for this user.
-                    Query contactQuery = db.collection("users").document(currentUser.getUuid()).collection("contacts").whereEqualTo("contactUuid", document.getId());
+                    Query contactQuery = db.collection("users").document(user.getUuid()).collection("contacts").whereEqualTo("contactUuid", document.getId());
                     contactQuery.get().addOnCompleteListener(checkIfContactExistsTask -> {
                         if (checkIfContactExistsTask.isSuccessful() && checkIfContactExistsTask.getResult().size() == 0) {
                             // Store the contact for the contacted user
-                            Contact externalContact = new Contact(currentUser.getUuid(), false, false);
+                            Contact externalContact = new Contact(user.getUuid(), false, false);
                             String id1 = db.collection("users").document(document.getId()).collection("contacts").document().getId();
                             db.collection("users").document(document.getId()).collection("contacts").document(id1).set(externalContact);
 
                             // Store the contact for the current user
                             Contact myContact = new Contact(document.getId(), false, true);
-                            String id2 = db.collection("users").document(currentUser.getUuid()).collection("contacts").document().getId();
-                            db.collection("users").document(currentUser.getUuid()).collection("contacts").document(id2).set(myContact);
+                            String id2 = db.collection("users").document(user.getUuid()).collection("contacts").document().getId();
+                            db.collection("users").document(user.getUuid()).collection("contacts").document(id2).set(myContact);
                         }
                     });
                 } else {
@@ -304,7 +296,7 @@ public class DataService extends Service {
 
     public void acceptContact(Contact contact) {
         // Accept the contact for the contacted user
-        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", currentUser.getUuid());
+        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", user.getUuid());
         userQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult().size() == 1) {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
@@ -323,15 +315,15 @@ public class DataService extends Service {
 
         // Accept the contact for the current user
         contact.setAccepted(true);
-        db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
-        currentUser.getContacts().get(contact.getUuid()).setAccepted(true);
+        db.collection("users").document(user.getUuid()).collection("contacts").document(contact.getUuid()).set(contact);
+        user.getContacts().get(contact.getUuid()).setAccepted(true);
         updateContacts();
         contactUsersRequested.remove(contact.getContactUuid());
-        updateCurrentContactUsersRequested();
+        updateContactUsersRequested();
     }
 
     public void removeContactForUser(User user) {
-        for (Contact contact : currentUser.getContacts().values()) {
+        for (Contact contact : this.user.getContacts().values()) {
             if (contact.getContactUuid().equals(user.getUuid())) {
                 // Found the contact for the user, now remove it.
                 removeContact(contact);
@@ -341,8 +333,8 @@ public class DataService extends Service {
     }
 
     public void removeContact(Contact contact) {
-        db.collection("users").document(currentUser.getUuid()).collection("contacts").document(contact.getUuid()).delete();
-        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", currentUser.getUuid());
+        db.collection("users").document(user.getUuid()).collection("contacts").document(contact.getUuid()).delete();
+        Query userQuery = db.collection("users").document(contact.getContactUuid()).collection("contacts").whereEqualTo("contactUuid", user.getUuid());
         userQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult().size() == 1) {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
@@ -351,10 +343,10 @@ public class DataService extends Service {
                 }
             }
         });
-        currentUser.getContacts().remove(contact.getUuid());
+        user.getContacts().remove(contact.getUuid());
         contactUsersRequested.remove(contact.getContactUuid());
         updateContacts();
-        updateCurrentContactUsersRequested();
+        updateContactUsersRequested();
     }
 
     class DataServiceBinder extends Binder {

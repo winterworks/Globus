@@ -1,7 +1,6 @@
 package nl.bramwinter.globus;
 
 import android.Manifest;
-import android.app.Service;
 import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,11 +9,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -52,7 +46,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
@@ -98,29 +91,29 @@ public class OverviewActivity extends AppCompatActivity implements
                             fragment = new LocationUpdatesFragment();
 
                             LocationUpdatesFragment locationUpdatesFragment = (LocationUpdatesFragment) fragment;
-                            locationUpdatesFragment.setLocationsLiveData(dataService.getCurrentLocations());
+                            locationUpdatesFragment.setLocationsLiveData(dataService.getMyLocations());
 
                             break;
                         case R.id.nav_notifications:
                             fragment = new NotificationsFragment();
 
                             NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
-                            notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
-                            notificationsFragment.setUsersLiveData(dataService.getCurrentContactUsersRequested());
+                            notificationsFragment.setContactsLiveData(dataService.getContacts());
+                            notificationsFragment.setUsersLiveData(dataService.getContactUsersRequested());
 
                             break;
                         case R.id.nav_contact_list:
                             fragment = new ContactsFragment();
 
                             ContactsFragment contactsFragment = (ContactsFragment) fragment;
-                            contactsFragment.setUsersLiveData(dataService.getCurrentContactUsers());
+                            contactsFragment.setUsersLiveData(dataService.getContactUsers());
 
                             break;
                         case R.id.nav_locations_list:
                             fragment = new MyLocationsFragment();
 
                             MyLocationsFragment myLocationsFragment = (MyLocationsFragment) fragment;
-                            myLocationsFragment.setLocationsLiveData(dataService.getMyCurrentLocations());
+                            myLocationsFragment.setLocationsLiveData(dataService.getMyLocations());
 
                             break;
                     }
@@ -272,7 +265,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void ContactAddListener(String email) {
-        dataService.addMyContact(email);
+        dataService.addContact(email);
     }
 
     @Override
@@ -319,12 +312,12 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void setLiveDataForMapLocations() {
         Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
-        dataService.getMyCurrentLocations().observe(this, locationsObserver);
+        dataService.getMyLocations().observe(this, locationsObserver);
     }
 
     private void setLiveDataForContactMapLocations() {
         Observer<List<User>> userObserver = users -> showLocationsForUser(users);
-        dataService.getCurrentContactUsers().observe(this, userObserver);
+        dataService.getContactUsers().observe(this, userObserver);
 
     }
 
