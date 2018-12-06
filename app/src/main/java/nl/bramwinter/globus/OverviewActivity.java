@@ -1,45 +1,20 @@
 package nl.bramwinter.globus;
 
-import android.Manifest;
-import android.app.Service;
-import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,14 +23,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import nl.bramwinter.globus.fragments.ContactsFragment;
 import nl.bramwinter.globus.fragments.LocationUpdatesFragment;
+import nl.bramwinter.globus.fragments.MapFragment;
 import nl.bramwinter.globus.fragments.MyLocationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.models.Contact;
@@ -68,17 +41,11 @@ public class OverviewActivity extends AppCompatActivity implements
         MyLocationsFragment.MyLocationsFragmentListener,
         ContactsFragment.ContactFragmentListener,
         NotificationsFragment.NotificationFragmentListener,
-        OnMapReadyCallback {
+        MapFragment.OnFragmentInteractionListener {
 
     static final int ADD_LOCATION_REQUEST = 195;
     static final int EDIT_LOCATION_REQUEST = 196;
-    private static final String TAG = "Globus Map";
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 10;
     BottomNavigationView buttonNavigationUpdate;
-    GoogleMap mMap;
-    FusedLocationProviderClient fusedLocationProviderClient;
-    private boolean mLocationPermissionGranted = false;
-    private FloatingActionButton buttonAddLocation;
 
     private DataService dataService;
     private ServiceConnection dataServiceConnection;
@@ -91,37 +58,33 @@ public class OverviewActivity extends AppCompatActivity implements
                     switch (menuItem.getItemId()) {
                         case R.id.navigation_map:
 
-                            fragment = new SupportMapFragment();
-                            ((SupportMapFragment) fragment).getMapAsync(OverviewActivity.this);
+                            fragment = new MapFragment();
+                            ((MapFragment) fragment).setLocationLiveData(dataService.getMyLocations()); // TODO why not parsing service?
+                            ((MapFragment) fragment).setContactUsersLiveData(dataService.getContactUsers());
                             break;
                         case R.id.nav_updates:
                             fragment = new LocationUpdatesFragment();
 
-                            LocationUpdatesFragment locationUpdatesFragment = (LocationUpdatesFragment) fragment;
-                            locationUpdatesFragment.setLocationsLiveData(dataService.getCurrentLocations());
+                            ((LocationUpdatesFragment) fragment).setLocationsLiveData(dataService.getMyLocations());
 
                             break;
                         case R.id.nav_notifications:
                             fragment = new NotificationsFragment();
 
-                            NotificationsFragment notificationsFragment = (NotificationsFragment) fragment;
-                            notificationsFragment.setContactsLiveData(dataService.getCurrentContacts());
-                            notificationsFragment.setUsersLiveData(dataService.getCurrentContactUsersRequested());
+                            ((NotificationsFragment) fragment).setContactsLiveData(dataService.getContacts());
+                            ((NotificationsFragment) fragment).setUsersLiveData(dataService.getContactUsersRequested());
 
                             break;
                         case R.id.nav_contact_list:
                             fragment = new ContactsFragment();
 
-                            ContactsFragment contactsFragment = (ContactsFragment) fragment;
-                            contactsFragment.setUsersLiveData(dataService.getCurrentContactUsers());
+                            ((ContactsFragment) fragment).setUsersLiveData(dataService.getContactUsers());
 
                             break;
                         case R.id.nav_locations_list:
                             fragment = new MyLocationsFragment();
 
-                            MyLocationsFragment myLocationsFragment = (MyLocationsFragment) fragment;
-                            myLocationsFragment.setLocationsLiveData(dataService.getMyCurrentLocations());
-
+                            ((MyLocationsFragment) fragment).setLocationsLiveData(dataService.getMyLocations());
                             break;
                     }
                     assert fragment != null;
@@ -144,12 +107,6 @@ public class OverviewActivity extends AppCompatActivity implements
         buttonNavigationUpdate.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         setupDataService();
-        setupUi();
-
-        getMapPermissions();
-        SupportMapFragment fragment = new SupportMapFragment();
-        fragment.getMapAsync(OverviewActivity.this);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -180,62 +137,6 @@ public class OverviewActivity extends AppCompatActivity implements
         });
     }
 
-    public void getCurrentDeviceLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        try {
-            if (mLocationPermissionGranted) {
-                Task location = fusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "Found location");
-                        android.location.Location currentDeviceLocation = (android.location.Location) task.getResult();
-
-                        moveCamera(new LatLng(currentDeviceLocation.getLatitude(), currentDeviceLocation.getLongitude()), 15);
-                    } else {
-                        Log.d(TAG, "Could not find location");
-                        Toast.makeText(OverviewActivity.this, "Unable to get get current location", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        } catch (SecurityException e) {
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    private void addMarker(double latitude, double longtitude, int drawable, String title) {
-        MarkerOptions markerOptions = new MarkerOptions()
-                .title(title)
-                .position(new LatLng(latitude, longtitude))
-                .icon(bitmapDescriptorFromVector(getApplicationContext(), drawable));
-        mMap.addMarker(markerOptions);
-    }
-
-    // source: https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
-    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
-
-    private void setupUi() {
-        buttonAddLocation = findViewById(R.id.FabAddLocation);
-        buttonAddLocation.setImageResource(R.drawable.ic_add_location_black_24dp);
-        buttonAddLocation.setOnClickListener(v -> openCreateNewLocationsActivity());
-    }
-
-    private void openCreateNewLocationsActivity() {
-        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
-
-        LatLng location = mMap.getCameraPosition().target;
-        intent.putExtra(MyProperties.latitude, location.latitude);
-        intent.putExtra(MyProperties.longitude, location.longitude);
-
-        startActivityForResult(intent, ADD_LOCATION_REQUEST);
-    }
-
     private void openManageLocationsActivity(Location location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
         intent.putExtra(MyProperties.locationId, location.getUuid());
@@ -243,16 +144,16 @@ public class OverviewActivity extends AppCompatActivity implements
         startActivityForResult(intent, EDIT_LOCATION_REQUEST);
     }
 
-    private void moveCamera(LatLng latLng, int zoom) {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-    }
-
     private void setupDataService() {
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
-                setLiveDataForMapLocations();
-                setLiveDataForContactMapLocations();
+
+                Fragment fragment = new MapFragment();
+                ((MapFragment) fragment).setLocationLiveData(dataService.getMyLocations());
+                ((MapFragment) fragment).setContactUsersLiveData(dataService.getContactUsers());
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        fragment).commit();
             }
 
             public void onServiceDisconnected(ComponentName className) {
@@ -272,7 +173,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     @Override
     public void ContactAddListener(String email) {
-        dataService.addMyContact(email);
+        dataService.addContact(email);
     }
 
     @Override
@@ -305,96 +206,13 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onFabClick(LatLng location) {
+        Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
 
-        if (mLocationPermissionGranted) {
-            getCurrentDeviceLocation();
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mMap.setMyLocationEnabled(true);
-        }
-    }
+        intent.putExtra(MyProperties.latitude, location.latitude);
+        intent.putExtra(MyProperties.longitude, location.longitude);
 
-    private void setLiveDataForMapLocations() {
-        Observer<List<Location>> locationsObserver = locations -> showLocationsOnMap(locations);
-        dataService.getMyCurrentLocations().observe(this, locationsObserver);
-    }
-
-    private void setLiveDataForContactMapLocations() {
-        Observer<List<User>> userObserver = users -> showLocationsForUser(users);
-        dataService.getCurrentContactUsers().observe(this, userObserver);
-
-    }
-
-    private void showLocationsForUser(List<User> users) {
-        for (User user : users) {
-            showLocationsOnMap(new ArrayList<>(user.getLocations().values()));
-        }
-    }
-
-    private void showLocationsOnMap(List<Location> locations) {
-        for (Location location : locations) {
-
-            int icon = 0;
-
-            if (location != null) {
-                switch (location.getIcon()) {
-                    case 0:
-                        icon = R.drawable.ic_home_black_24dp;
-
-                        break;
-                    case 1:
-                        icon = R.drawable.ic_location_city_black_24dp;
-                        break;
-                    case 2:
-                        icon = R.drawable.ic_casino_black_24dp;
-                        break;
-                }
-            }
-            addMarker(location.getLatitude(), location.getLongitude(), icon, location.getName());
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        setLiveDataForMapLocations();
-    }
-
-    private void getMapPermissions() {
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
-
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionGranted = true;
-            } else {
-                ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            }
-        } else {
-            ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionResult called.");
-        mLocationPermissionGranted = false;
-
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0) {
-                    Log.d(TAG, "permission failed");
-                    return;
-                }
-                Log.d(TAG, "permission granted");
-                mLocationPermissionGranted = true;
-            }
-        }
+        startActivityForResult(intent, ADD_LOCATION_REQUEST);
     }
 
     @Override
@@ -411,4 +229,6 @@ public class OverviewActivity extends AppCompatActivity implements
             }
         }
     }
+
+
 }
