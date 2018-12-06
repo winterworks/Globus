@@ -35,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-
 /**
  *
  * Parts of this code is taken/inspired from Googles firebase guide and Facebooks authentication guide
@@ -303,5 +302,4 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
 
         }
     }
-
 }
