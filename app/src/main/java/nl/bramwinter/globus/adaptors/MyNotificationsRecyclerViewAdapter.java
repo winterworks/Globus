@@ -13,51 +13,67 @@ import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.fragments.NotificationsFragment;
 import nl.bramwinter.globus.fragments.NotificationsFragment.NotificationFragmentListener;
 import nl.bramwinter.globus.models.Contact;
+import nl.bramwinter.globus.models.User;
 
-public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContactsRecyclerViewAdapter.ViewHolder> {
+public class MyNotificationsRecyclerViewAdapter extends RecyclerView.Adapter<MyNotificationsRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Contact> mValues;
+    private final List<Contact> contacts;
+    private final List<User> users;
     private final NotificationsFragment.NotificationFragmentListener mListener;
 
-    public MyContactsRecyclerViewAdapter(List<Contact> items, NotificationFragmentListener listener) {
-        mValues = items;
+    public MyNotificationsRecyclerViewAdapter(List<Contact> contacts, List<User> users, NotificationFragmentListener listener) {
+        for (Contact contact : contacts) {
+            // Don't show the contact if it's already accepted or you are the one who requested the contact
+            if (contact.isAccepted() || contact.isInitiated()) {
+                contacts.remove(contact);
+            }
+        }
+        this.contacts = contacts;
+        this.users = users;
         mListener = listener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_contacts, parent, false);
+                .inflate(R.layout.fragment_notification, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-//        holder.nameView.setText(mValues.get(position).getContactor().getFullName());
-        holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest());
-        holder.buttonReject.setOnClickListener(v -> RejectContactRequest());
+        holder.contact = contacts.get(position);
+        if (users != null) {
+            for (User user : users) {
+                if (user.getUuid().equals(holder.contact.getContactUuid())) {
+                    holder.nameView.setText(user.getEmail());
+                }
+            }
+        }
+
+        holder.buttonAccept.setOnClickListener(v -> AcceptContactRequest(holder.contact));
+        holder.buttonReject.setOnClickListener(v -> RejectContactRequest(holder.contact));
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.NotificationClickListener(holder.mItem);
+                mListener.NotificationClickListener(holder.contact);
             }
         });
     }
 
-    private void AcceptContactRequest() {
-        // TODO implement
+    private void AcceptContactRequest(Contact contact) {
+        mListener.NotificationAcceptListener(contact);
     }
 
-    private void RejectContactRequest() {
-        // TODO implement
+    private void RejectContactRequest(Contact contact) {
+        mListener.NotificationDeclineListener(contact);
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return contacts.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -65,7 +81,7 @@ public class MyContactsRecyclerViewAdapter extends RecyclerView.Adapter<MyContac
         final TextView nameView;
         final Button buttonAccept;
         final Button buttonReject;
-        Contact mItem;
+        Contact contact;
 
         ViewHolder(View view) {
             super(view);

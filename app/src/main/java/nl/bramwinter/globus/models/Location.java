@@ -1,15 +1,18 @@
 package nl.bramwinter.globus.models;
 
 import java.util.Date;
+import java.util.Map;
 
 public class Location {
 
-    private Long uuid;
+    private String uuid;
     private double latitude;
     private double longitude;
     private Date addedAt;
     private String name;
     private Integer icon;
+
+    public Location() {}
 
     public Location(double latitude, double longitude, Date addedAt, String name, Integer icon) {
         this.latitude = latitude;
@@ -19,11 +22,25 @@ public class Location {
         this.icon = icon;
     }
 
-    public Long getUuid() {
+    public Location(Map map){
+        try {
+            this.uuid = (String) map.get("uuid");
+            this.latitude = (double) map.get("latitude");
+            this.longitude = (double) map.get("longitude");
+            this.addedAt = (Date) map.get("addedAt");
+            this.name = (String) map.get("name");
+            this.icon = Integer.valueOf(String.valueOf(map.get("icon")));
+
+        } catch (Exception e){
+
+        }
+    }
+
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(Long uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 

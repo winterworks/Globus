@@ -8,4 +8,4 @@
     android:layout_marginLeft="0dp"
     android:layout_marginRight="0dp"
     tools:context=".fragments.NotificationsFragment"
-    tools:listitem="@layout/fragment_contacts" />
+    tools:listitem="@layout/fragment_notification" />
