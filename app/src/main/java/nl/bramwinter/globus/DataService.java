@@ -382,16 +382,14 @@ public class DataService extends Service {
     // Source: https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startMyOwnForeground(String message){
-        String NOTIFICATION_CHANNEL_ID = Globals.NOTIFICATION_CHANNEL;
-        String channelName = Globals.CHANNEL_NAME;
-        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        NotificationChannel notificationChannel = new NotificationChannel(Globals.NOTIFICATION_CHANNEL, Globals.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
         notificationChannel.setLightColor(Color.BLUE);
         notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         manager.createNotificationChannel(notificationChannel);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Globals.NOTIFICATION_CHANNEL);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle(message)
