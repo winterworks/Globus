@@ -1,19 +1,12 @@
 package nl.bramwinter.globus;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Binder;
-import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -43,8 +36,6 @@ public class DataService extends Service {
     private FirebaseFirestore db;
     private DocumentReference userReference;
 
-    private NotificationManagerCompat notificationManagerCompat;
-
     private User user;
     private HashMap<String, User> contactUsers = new HashMap<>();
     private HashMap<String, User> contactUsersRequested = new HashMap<>();
@@ -52,18 +43,11 @@ public class DataService extends Service {
     private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
-    private final Handler handler;
 
     public DataService() {
         db = FirebaseFirestore.getInstance();
         getCurrentUser();
-
         binder = new DataServiceBinder();
-
-        handler = new Handler();
-
-        notificationManagerCompat = NotificationManagerCompat.from(this);
-        createNotificationChannel();
     }
 
     @Override
@@ -145,6 +129,8 @@ public class DataService extends Service {
 
     private void AddContactToLists(Contact contact) {
         if (contact.isAccepted()) {
+            stopForeground(true);
+            stopSelf();
             addContactToUserList(contact);
         } else if (!contact.isInitiated()) {
             addContactToUserRequestedList(contact);
@@ -180,9 +166,11 @@ public class DataService extends Service {
                         if (dc.getDocument().get("latitude") != null) {
                             Location location = new Location(dc.getDocument().getData());
                             location.setUuid(dc.getDocument().getId());
+                            String message = "User " + user.getName() + " added a new location " + location.getName();
                             switch (dc.getType()) {
                                 case ADDED:
                                     user.getLocations().put(location.getUuid(), location);
+                                    showNewLocationNoticication(message);
                                     break;
                                 case MODIFIED:
                                     user.getLocations().put(location.getUuid(), location);
@@ -209,20 +197,7 @@ public class DataService extends Service {
                     contactUsersRequested.put(document.getId(), newUser);
                     updateContactUsersRequested();
                     String message = "User " + newUser.getName() + " has sent a friend request";
-                    Notification notification = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID)
-                            .setSmallIcon(R.mipmap.ic_launcher_round)
-                            .setContentTitle(getString(R.string.app_name))
-                            .setSubText(message)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                            .build();
-                    notificationManagerCompat.notify(1, notification);
-//                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                        startMyOwnForeground("User " + newUser.getName() + " has sent a friend request");
-//                    } else {
-//                        startForeground(1, new Notification());
-//                    }
-
+                    showPushNotification(message);
                 }
             }
         });
@@ -393,39 +368,46 @@ public class DataService extends Service {
         }
     }
 
-    // Source: https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startMyOwnForeground(String message){
-//        NotificationChannel notificationChannel = new NotificationChannel(MyProperties.NOTIFICATION_CHANNEL, MyProperties.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
-//        notificationChannel.setLightColor(Color.BLUE);
-//        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-//        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//        manager.createNotificationChannel(notificationChannel);
-//
-//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.NOTIFICATION_CHANNEL);
-//        Notification notification = notificationBuilder.setOngoing(true)
-//                .setSmallIcon(R.mipmap.ic_launcher_foreground)
-//                .setContentTitle(message)
-//                .setPriority(NotificationManager.IMPORTANCE_MIN)
-//                .setCategory(Notification.CATEGORY_SERVICE)
-//                .build();
-//        startForeground(MyProperties.NOTIFICATION_ID, notification);
+    // Source: https://developer.android.com/training/notify-user/build-notification
+    public void showPushNotification(String message) {
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID_FRIEND_REQUEST);
+
+        Intent intent = new Intent(this, OverviewActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = notificationBuilder
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setContentIntent(pendingIntent)
+                .build();
+        notificationManagerCompat.notify(1, notification);
     }
 
-    public void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    MyProperties.CHANNEL_ID,
-                    MyProperties.CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            notificationChannel.setLightColor(Color.BLUE);
-            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+    public void showNewLocationNoticication(String message) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID_CONTACT_ADD_LOCATION);
+        int id = 2;
 
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+        Intent intent = new Intent(this, OverviewActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = notificationBuilder
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setContentIntent(pendingIntent)
+                .build();
+        startForeground(id, notification);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
 }

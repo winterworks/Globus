@@ -15,7 +15,8 @@ public class MyProperties {
     public static final int NOTIFICATION_ID = 1001;
     public static final String NOTIFICATION_CHANNEL = "nl.winter.globus.notification";
     public static final String CHANNEL_NAME = "globus.channel.name";
-    public static final String CHANNEL_ID = "nl.winter.globus.channelId";
+    public static final String CHANNEL_ID_FRIEND_REQUEST = "nl.winter.globus.channelIdFriendRequest";
+    public static final String CHANNEL_ID_CONTACT_ADD_LOCATION = "nl.winter.globus.contactAddLocation";
 
     public static final List<Integer> ICON_MAP = new ArrayList<>(Arrays.asList(
             R.drawable.ic_home_black_24dp,
