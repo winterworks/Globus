@@ -41,7 +41,8 @@
 
     <string name="facebook_app_id">273035953395250</string>
     <string name="fb_login_protocol_scheme">fb273035953395250</string>
-
+    <string name="remove_contacts">Remove Contact</string>
+    <string name="are_you_sure">Are you sure?</string>
 
 
 </resources>
