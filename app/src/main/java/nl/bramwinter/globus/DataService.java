@@ -12,8 +12,10 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,6 +43,8 @@ public class DataService extends Service {
     private FirebaseFirestore db;
     private DocumentReference userReference;
 
+    private NotificationManagerCompat notificationManagerCompat;
+
     private User user;
     private HashMap<String, User> contactUsers = new HashMap<>();
     private HashMap<String, User> contactUsersRequested = new HashMap<>();
@@ -57,6 +61,9 @@ public class DataService extends Service {
         binder = new DataServiceBinder();
 
         handler = new Handler();
+
+        notificationManagerCompat = NotificationManagerCompat.from(this);
+        createNotificationChannel();
     }
 
     @Override
@@ -201,11 +208,20 @@ public class DataService extends Service {
                     User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
                     contactUsersRequested.put(document.getId(), newUser);
                     updateContactUsersRequested();
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startMyOwnForeground("User " + newUser.getName() + " has sent a friend request");
-                    } else {
-                        startForeground(1, new Notification());
-                    }
+                    String message = "User " + newUser.getName() + " has sent a friend request";
+                    Notification notification = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID)
+                            .setSmallIcon(R.mipmap.ic_launcher_round)
+                            .setContentTitle(getString(R.string.app_name))
+                            .setSubText(message)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                            .build();
+                    notificationManagerCompat.notify(1, notification);
+//                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                        startMyOwnForeground("User " + newUser.getName() + " has sent a friend request");
+//                    } else {
+//                        startForeground(1, new Notification());
+//                    }
 
                 }
             }
@@ -380,21 +396,36 @@ public class DataService extends Service {
     // Source: https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startMyOwnForeground(String message){
-        NotificationChannel notificationChannel = new NotificationChannel(MyProperties.NOTIFICATION_CHANNEL, MyProperties.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
-        notificationChannel.setLightColor(Color.BLUE);
-        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        NotificationChannel notificationChannel = new NotificationChannel(MyProperties.NOTIFICATION_CHANNEL, MyProperties.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
+//        notificationChannel.setLightColor(Color.BLUE);
+//        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+//        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//        manager.createNotificationChannel(notificationChannel);
+//
+//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.NOTIFICATION_CHANNEL);
+//        Notification notification = notificationBuilder.setOngoing(true)
+//                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+//                .setContentTitle(message)
+//                .setPriority(NotificationManager.IMPORTANCE_MIN)
+//                .setCategory(Notification.CATEGORY_SERVICE)
+//                .build();
+//        startForeground(MyProperties.NOTIFICATION_ID, notification);
+    }
 
-        manager.createNotificationChannel(notificationChannel);
+    public void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(
+                    MyProperties.CHANNEL_ID,
+                    MyProperties.CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.NOTIFICATION_CHANNEL);
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher_foreground)
-                .setContentTitle(message)
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-        startForeground(MyProperties.NOTIFICATION_ID, notification);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
     }
 
 }
