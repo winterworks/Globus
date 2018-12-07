@@ -100,7 +100,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void openManageLocationsActivity(Location location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
-        intent.putExtra(MyProperties.locationId, location.getUuid());
+        intent.putExtra(MyProperties.LOCATION_ID, location.getUuid());
 
         startActivityForResult(intent, EDIT_LOCATION_REQUEST);
     }
@@ -170,8 +170,8 @@ public class OverviewActivity extends AppCompatActivity implements
     public void onFabClick(LatLng location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
 
-        intent.putExtra(MyProperties.latitude, location.latitude);
-        intent.putExtra(MyProperties.longitude, location.longitude);
+        intent.putExtra(MyProperties.LATITUDE, location.latitude);
+        intent.putExtra(MyProperties.LONGITUDE, location.longitude);
 
         startActivityForResult(intent, ADD_LOCATION_REQUEST);
     }

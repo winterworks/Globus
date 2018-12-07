@@ -41,7 +41,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
 
         Integer iconResource = locations.get(position).getIcon();
         if (iconResource != null) {
-            holder.imageViewIcon.setImageResource(MyProperties.iconMap.get(iconResource));
+            holder.imageViewIcon.setImageResource(MyProperties.ICON_MAP.get(iconResource));
         }
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");

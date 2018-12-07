@@ -8,11 +8,15 @@ import nl.bramwinter.globus.R;
 
 public class MyProperties {
     // Intent extra's
-    public static final String latitude = "latitude";
-    public static final String longitude = "longitude";
-    public static final String locationId = "locationId";
+    public static final String LATITUDE = "LATITUDE";
+    public static final String LONGITUDE = "LONGITUDE";
+    public static final String LOCATION_ID = "LOCATION_ID";
 
-    public static final List<Integer> iconMap = new ArrayList<>(Arrays.asList(
+    public static final int NOTIFICATION_ID = 1001;
+    public static final String NOTIFICATION_CHANNEL = "nl.winter.globus.notification";
+    public static final String CHANNEL_NAME = "globus.channel.name";
+
+    public static final List<Integer> ICON_MAP = new ArrayList<>(Arrays.asList(
             R.drawable.ic_home_black_24dp,
             R.drawable.ic_location_city_black_24dp,
             R.drawable.ic_casino_black_24dp

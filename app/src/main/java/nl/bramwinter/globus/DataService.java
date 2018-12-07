@@ -3,7 +3,6 @@ package nl.bramwinter.globus;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
@@ -25,7 +24,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.List;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
-import nl.bramwinter.globus.util.Globals;
+import nl.bramwinter.globus.util.MyProperties;
 
 public class DataService extends Service {
 
@@ -382,21 +380,21 @@ public class DataService extends Service {
     // Source: https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startMyOwnForeground(String message){
-        NotificationChannel notificationChannel = new NotificationChannel(Globals.NOTIFICATION_CHANNEL, Globals.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
+        NotificationChannel notificationChannel = new NotificationChannel(MyProperties.NOTIFICATION_CHANNEL, MyProperties.CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE);
         notificationChannel.setLightColor(Color.BLUE);
         notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         manager.createNotificationChannel(notificationChannel);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Globals.NOTIFICATION_CHANNEL);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.NOTIFICATION_CHANNEL);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle(message)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
-        startForeground(Globals.NOTIFICATION_ID, notification);
+        startForeground(MyProperties.NOTIFICATION_ID, notification);
     }
 
 }

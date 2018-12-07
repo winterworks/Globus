@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -54,7 +53,7 @@ public class ManageLocations extends AppCompatActivity {
         buttonAddLocation.setOnClickListener(v -> createNewLocation());
 
         int index = 0;
-        for (Integer imageResourceId : MyProperties.iconMap) {
+        for (Integer imageResourceId : MyProperties.ICON_MAP) {
             // RadioButton
             RadioButton radioButton = new RadioButton(this);
             radioButton.setId(index);
@@ -89,8 +88,8 @@ public class ManageLocations extends AppCompatActivity {
 
     private void createNewLocation() {
         Intent intent = getIntent();
-        double latitude = intent.getDoubleExtra(MyProperties.latitude, 0);
-        double longitude = intent.getDoubleExtra(MyProperties.longitude, 0);
+        double latitude = intent.getDoubleExtra(MyProperties.LATITUDE, 0);
+        double longitude = intent.getDoubleExtra(MyProperties.LONGITUDE, 0);
         String description = editLocationDescription.getText().toString();
         int iconId = radioGroup.getCheckedRadioButtonId();
 
@@ -115,8 +114,8 @@ public class ManageLocations extends AppCompatActivity {
         dataServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 dataService = ((DataService.DataServiceBinder) service).getService();
-                if (getIntent().hasExtra(MyProperties.locationId)) {
-                    location = dataService.getMyLocationsById(getIntent().getStringExtra(MyProperties.locationId));
+                if (getIntent().hasExtra(MyProperties.LOCATION_ID)) {
+                    location = dataService.getMyLocationsById(getIntent().getStringExtra(MyProperties.LOCATION_ID));
                     showLocationInfoInUi(location);
                 }
             }
