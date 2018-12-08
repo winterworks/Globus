@@ -1,11 +1,14 @@
 package nl.bramwinter.globus;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +26,7 @@ import java.util.List;
 import nl.bramwinter.globus.models.Contact;
 import nl.bramwinter.globus.models.Location;
 import nl.bramwinter.globus.models.User;
+import nl.bramwinter.globus.util.MyProperties;
 
 public class DataService extends Service {
 
@@ -39,15 +43,11 @@ public class DataService extends Service {
     private MutableLiveData<List<User>> contactUsersRequestedLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Location>> myLocationsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Contact>> contactsLiveData = new MutableLiveData<>();
-    private final Handler handler;
 
     public DataService() {
         db = FirebaseFirestore.getInstance();
         getCurrentUser();
-
         binder = new DataServiceBinder();
-
-        handler = new Handler();
     }
 
     @Override
@@ -129,6 +129,8 @@ public class DataService extends Service {
 
     private void AddContactToLists(Contact contact) {
         if (contact.isAccepted()) {
+            stopForeground(true);
+            stopSelf();
             addContactToUserList(contact);
         } else if (!contact.isInitiated()) {
             addContactToUserRequestedList(contact);
@@ -164,9 +166,11 @@ public class DataService extends Service {
                         if (dc.getDocument().get("latitude") != null) {
                             Location location = new Location(dc.getDocument().getData());
                             location.setUuid(dc.getDocument().getId());
+                            String message = "User " + user.getName() + " added a new location " + location.getName();
                             switch (dc.getType()) {
                                 case ADDED:
                                     user.getLocations().put(location.getUuid(), location);
+                                    showNewLocationNoticication(message);
                                     break;
                                 case MODIFIED:
                                     user.getLocations().put(location.getUuid(), location);
@@ -192,6 +196,8 @@ public class DataService extends Service {
                     User newUser = new User(document.getId(), document.get("name").toString(), document.get("email").toString(), new HashMap<>(), new HashMap<>());
                     contactUsersRequested.put(document.getId(), newUser);
                     updateContactUsersRequested();
+                    String message = "User " + newUser.getName() + " has sent a friend request";
+                    showPushNotification(message);
                 }
             }
         });
@@ -360,5 +366,48 @@ public class DataService extends Service {
         DataService getService() {
             return DataService.this;
         }
+    }
+
+    // Source: https://developer.android.com/training/notify-user/build-notification
+    public void showPushNotification(String message) {
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID_FRIEND_REQUEST);
+
+        Intent intent = new Intent(this, OverviewActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = notificationBuilder
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setContentIntent(pendingIntent)
+                .build();
+        notificationManagerCompat.notify(1, notification);
+    }
+
+    public void showNewLocationNoticication(String message) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MyProperties.CHANNEL_ID_CONTACT_ADD_LOCATION);
+        int id = 2;
+
+        Intent intent = new Intent(this, OverviewActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = notificationBuilder
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setContentIntent(pendingIntent)
+                .build();
+        startForeground(id, notification);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 }

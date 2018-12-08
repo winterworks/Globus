@@ -32,12 +32,21 @@
     <string name="auth_failed">Inloggen mislukt</string>
     <string name="signed_out">Uitgelogd</string>
 
+    <string name="request_sent">Verzonden</string>
+    <string name="location_created">Locatie toegevoegd</string>
+    <string name="location_edited">Locatie bewerkt</string>
+
     <string name="lastname">Achternaam</string>
     <string name="firstname">Voornaam</string>
     <string name="cancel">Annuleren</string>
     <string name="status">Status</string>
     <string name="FrontpageMessage">Log in met je gegevens \n of kies een andere login methode</string>
     <string name="type_in_your_password">Voer uw wachtwoord in</string>
+
+    <string name="remove_contact">Verwijder contact</string>
+    <string name="remove_location">Verwijder locatie</string>
+    <string name="are_you_sure">Weet je het zeker?</string>
+    <string name="sign_out">Log uit</string>
 
     <string name="facebook_app_id">273035953395250</string>
     <string name="fb_login_protocol_scheme">fb273035953395250</string>

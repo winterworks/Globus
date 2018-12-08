@@ -1,5 +1,6 @@
 package nl.bramwinter.globus.adaptors;
 
+import android.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +42,7 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
 
         Integer iconResource = locations.get(position).getIcon();
         if (iconResource != null) {
-            holder.imageViewIcon.setImageResource(MyProperties.iconMap.get(iconResource));
+            holder.imageViewIcon.setImageResource(MyProperties.ICON_MAP.get(iconResource));
         }
 
         Format formatter = new SimpleDateFormat("dd-MM-yy");
@@ -58,7 +59,18 @@ public class MyLocationRecyclerViewAdapter extends RecyclerView.Adapter<MyLocati
 
         holder.mView.setOnLongClickListener(view -> {
             if (null != mListener) {
-                mListener.MyLocationsPressListener(holder.location);
+
+                // Source: https://developer.android.com/guide/topics/ui/dialogs#java
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
+                alertDialogBuilder.setTitle(R.string.remove_location);
+                alertDialogBuilder.setMessage(R.string.are_you_sure);
+                alertDialogBuilder.setPositiveButton("Yes", (dialog, which) -> {
+                    mListener.MyLocationsPressListener(holder.location);
+                });
+
+                alertDialogBuilder.setNegativeButton("No", (dialog, which) -> {
+                });
+                alertDialogBuilder.show();
                 return true;
             }
             return false;

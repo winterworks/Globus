@@ -99,7 +99,7 @@ public class ContactsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mListener.ContactAddListener(editTextEmail.getText().toString());
-                Toast.makeText(getContext(), "Request sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.request_sent, Toast.LENGTH_SHORT).show();
             }
         });
     }

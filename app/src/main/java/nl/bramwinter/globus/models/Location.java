@@ -12,8 +12,6 @@ public class Location {
     private String name;
     private Integer icon;
 
-    public Location() {}
-
     public Location(double latitude, double longitude, Date addedAt, String name, Integer icon) {
         this.latitude = latitude;
         this.longitude = longitude;

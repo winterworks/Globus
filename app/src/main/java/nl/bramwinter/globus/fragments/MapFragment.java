@@ -207,7 +207,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void showLocationsOnMap(List<Location> locations) {
         if (mMap == null) return;
         for (Location location : locations) {
-            addMarker(location.getLatitude(), location.getLongitude(), MyProperties.iconMap.get(location.getIcon()), location.getName());
+            addMarker(location.getLatitude(), location.getLongitude(), MyProperties.ICON_MAP.get(location.getIcon()), location.getName());
         }
     }
 

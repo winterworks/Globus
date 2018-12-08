@@ -1,5 +1,6 @@
 package nl.bramwinter.globus.adaptors;
 
+import android.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,8 +46,17 @@ public class MyUserRecyclerViewAdapter extends RecyclerView.Adapter<MyUserRecycl
 
         holder.mView.setOnLongClickListener(view -> {
             if (null != mListener) {
-                mListener.ContactPressListener(holder.user);
-                return true;
+                // Source: https://developer.android.com/guide/topics/ui/dialogs#java
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
+                alertDialogBuilder.setTitle(R.string.remove_contact);
+                alertDialogBuilder.setMessage(R.string.are_you_sure);
+                alertDialogBuilder.setPositiveButton("Yes", (dialog, which) -> {
+                    mListener.ContactPressListener(holder.user);
+                });
+
+                alertDialogBuilder.setNegativeButton("No", (dialog, which) -> {
+                });
+                alertDialogBuilder.show();
             }
             return false;
         });

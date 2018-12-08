@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -104,7 +105,7 @@ public class OverviewActivity extends AppCompatActivity implements
 
     private void openManageLocationsActivity(Location location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
-        intent.putExtra(MyProperties.locationId, location.getUuid());
+        intent.putExtra(MyProperties.LOCATION_ID, location.getUuid());
 
         startActivityForResult(intent, EDIT_LOCATION_REQUEST);
     }
@@ -174,8 +175,8 @@ public class OverviewActivity extends AppCompatActivity implements
     public void onFabClick(LatLng location) {
         Intent intent = new Intent(OverviewActivity.this, ManageLocations.class);
 
-        intent.putExtra(MyProperties.latitude, location.latitude);
-        intent.putExtra(MyProperties.longitude, location.longitude);
+        intent.putExtra(MyProperties.LATITUDE, location.latitude);
+        intent.putExtra(MyProperties.LONGITUDE, location.longitude);
 
         startActivityForResult(intent, ADD_LOCATION_REQUEST);
     }
@@ -185,12 +186,12 @@ public class OverviewActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_LOCATION_REQUEST) {
             if (resultCode == RESULT_OK) {
-                //TODO show success message
+                Toast.makeText(getApplicationContext(), R.string.location_created, Toast.LENGTH_SHORT).show();
             }
         }
         if (requestCode == EDIT_LOCATION_REQUEST) {
             if (resultCode == RESULT_OK) {
-                //TODO show success message
+                Toast.makeText(getApplicationContext(), R.string.location_edited, Toast.LENGTH_SHORT).show();
             }
         }
     }

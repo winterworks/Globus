@@ -32,6 +32,10 @@
     <string name="auth_failed">Authentication failed</string>
     <string name="signed_out">Signed Out</string>
 
+    <string name="request_sent">Request sent</string>
+    <string name="location_created">Location created</string>
+    <string name="location_edited">Location edited</string>
+
     <string name="lastname">LastName</string>
     <string name="firstname">FirstName</string>
     <string name="cancel">Cancel</string>
@@ -39,9 +43,11 @@
     <string name="FrontpageMessage">Sign in with your credentials or use \n alternate sign in method</string>
     <string name="type_in_your_password">Type in your password</string>
 
-    <string name="facebook_app_id">273035953395250</string>
-    <string name="fb_login_protocol_scheme">fb273035953395250</string>
+    <string name="remove_contact">Remove contact</string>
+    <string name="remove_location">Remove location</string>
+    <string name="are_you_sure">Are you sure?</string>
     <string name="sign_out">Sign Out</string>
 
-
+    <string name="facebook_app_id">273035953395250</string>
+    <string name="fb_login_protocol_scheme">fb273035953395250</string>
 </resources>
