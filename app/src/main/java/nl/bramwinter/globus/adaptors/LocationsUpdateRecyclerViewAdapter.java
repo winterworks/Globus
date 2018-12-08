@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.text.Format;
@@ -20,13 +22,11 @@ import nl.bramwinter.globus.util.MyProperties;
 
 public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<LocationsUpdateRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Location> locations = new ArrayList<>();
+    private final List<User> users;
     private final LocationUpdatesFragment.locationsFragmentListener mListener;
 
     public LocationsUpdateRecyclerViewAdapter(List<User> users, LocationUpdatesFragment.locationsFragmentListener listener) {
-        for (User user : users) {
-            this.locations.addAll(user.getLocations().values());
-        }
+        this.users = users;
         mListener = listener;
     }
 
@@ -39,46 +39,58 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.location = locations.get(position);
-        holder.textTitle.setText(locations.get(position).getName());
-        Integer iconResource = locations.get(position).getIcon();
-        if (iconResource != null) {
-            holder.imageViewIcon.setImageResource(MyProperties.ICON_MAP.get(iconResource));
-        }
+        holder.user = users.get(position);
+        String title = holder.mView.getResources().getString(R.string.locations_of) + " " + holder.user.getName();
+        holder.textTitle.setText(title);
 
-        Format formatter = new SimpleDateFormat("dd-MM-yy");
-        String readableDate = formatter.format(locations.get(position).getAddedAt());
-        holder.textUserMovedDate.setText(String.format(holder.mView.getResources().getString(R.string.added_at), readableDate));
+        TableLayout tableLayout = holder.locationsTable;
+        for (Location location : holder.user.getLocations().values()) {
+            TableRow tableRow = new TableRow(holder.mView.getContext());
+            Integer iconResource = location.getIcon();
+            if (iconResource != null) {
+                ImageView imageView = new ImageView(holder.mView.getContext());
+                imageView.setImageResource(MyProperties.ICON_MAP.get(iconResource));
+                tableRow.addView(imageView);
+            }
+
+            TextView textViewLocationName = new TextView(holder.mView.getContext());
+            textViewLocationName.setText(location.getName());
+            tableRow.addView(textViewLocationName);
+
+            Format formatter = new SimpleDateFormat("dd-MM-yy");
+            String readableDate = formatter.format(location.getAddedAt());
+            TextView textViewAddedAt = new TextView(holder.mView.getContext());
+            textViewAddedAt.setText(String.format(holder.mView.getResources().getString(R.string.added_at), readableDate));
+            tableRow.addView(textViewAddedAt);
+
+            tableLayout.addView(tableRow);
+        }
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                mListener.locationsClickListener(holder.location);
+                mListener.locationsClickListener(holder.user);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return locations.size();
+        return users.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
         final TextView textTitle;
-        final TextView textUserMovedDate;
-        final TextView textUsername;
-        final ImageView imageViewIcon;
-        Location location;
+        final TableLayout locationsTable;
+        User user;
 
         ViewHolder(View view) {
             super(view);
             mView = view;
             textTitle = view.findViewById(R.id.textTitle);
-            textUserMovedDate = view.findViewById(R.id.textAddedAtDate);
-            textUsername = view.findViewById(R.id.textUsername);
-            imageViewIcon = view.findViewById(R.id.imageViewIcon);
+            locationsTable = view.findViewById(R.id.locationsTable);
         }
     }
 }

@@ -130,7 +130,7 @@ public class OverviewActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void locationsClickListener(Location location) {
+    public void locationsClickListener(User user) {
     }
 
     @Override

@@ -10,6 +10,7 @@
     <string name="locations">Locations</string>
     <string name="description">Description</string>
 
+    <string name="locations_of">Locations of</string>
     <string name="old_location">Old location</string>
     <string name="new_location">New location</string>
     <string name="user">User</string>

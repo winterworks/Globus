@@ -114,6 +114,6 @@ public class LocationUpdatesFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface locationsFragmentListener {
-        void locationsClickListener(Location location);
+        void locationsClickListener(User user);
     }
 }

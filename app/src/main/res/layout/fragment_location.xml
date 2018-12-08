@@ -7,53 +7,33 @@
     android:layout_height="wrap_content"
     tools:layout_editor_absoluteY="81dp">
 
-    <ImageView
-        android:id="@+id/imageViewIcon"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@color/colorPrimary" />
-
     <TextView
         android:id="@+id/textTitle"
         android:layout_width="0dp"
-        android:layout_height="23dp"
+        android:layout_height="37dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageViewIcon"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textAddedAtDate"
-        android:layout_width="154dp"
+    <TableLayout
+        android:id="@+id/locationsTable"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/added_at"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewIcon"
-        app:layout_constraintTop_toBottomOf="@+id/textTitle" />
-
-    <TextView
-        android:id="@+id/textUsername"
-        android:layout_width="76dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/user"
+        android:stretchColumns="0,1,2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textAddedAtDate" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textTitle">
+
+    </TableLayout>
 
 </android.support.constraint.ConstraintLayout>
