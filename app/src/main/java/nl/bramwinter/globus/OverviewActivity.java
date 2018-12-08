@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -185,12 +186,12 @@ public class OverviewActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_LOCATION_REQUEST) {
             if (resultCode == RESULT_OK) {
-                //TODO show success message
+                Toast.makeText(getApplicationContext(), R.string.location_created, Toast.LENGTH_SHORT).show();
             }
         }
         if (requestCode == EDIT_LOCATION_REQUEST) {
             if (resultCode == RESULT_OK) {
-                //TODO show success message
+                Toast.makeText(getApplicationContext(), R.string.location_edited, Toast.LENGTH_SHORT).show();
             }
         }
     }

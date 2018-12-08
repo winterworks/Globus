@@ -41,8 +41,6 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.location = locations.get(position);
         holder.textTitle.setText(locations.get(position).getName());
-        // TODO get username
-//        holder.textUsername.setText(locations.get(position).getName());
         Integer iconResource = locations.get(position).getIcon();
         if (iconResource != null) {
             holder.imageViewIcon.setImageResource(MyProperties.ICON_MAP.get(iconResource));
