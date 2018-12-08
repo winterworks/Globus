@@ -147,7 +147,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
             finish();
         } else {
             ((TextView) findViewById(R.id.textViewStatus)).setText(
-                    getString(R.string.FrontpageMessage));
+                    getString(R.string.front_page_message));
         }
     }
 

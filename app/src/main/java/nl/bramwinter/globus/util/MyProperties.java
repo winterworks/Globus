@@ -21,7 +21,9 @@ public class MyProperties {
     public static final List<Integer> ICON_MAP = new ArrayList<>(Arrays.asList(
             R.drawable.ic_home_black_24dp,
             R.drawable.ic_location_city_black_24dp,
-            R.drawable.ic_casino_black_24dp
+            R.drawable.ic_pool_black_24dp,
+            R.drawable.ic_store_mall_directory_black_24dp,
+            R.drawable.ic_hotel_black_24dp
     ));
 
 }

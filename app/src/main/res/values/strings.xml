@@ -36,11 +36,11 @@
     <string name="location_created">Location created</string>
     <string name="location_edited">Location edited</string>
 
-    <string name="lastname">LastName</string>
-    <string name="firstname">FirstName</string>
+    <string name="last_name">LastName</string>
+    <string name="first_name">FirstName</string>
     <string name="cancel">Cancel</string>
     <string name="status">Status</string>
-    <string name="FrontpageMessage">Sign in with your credentials or use \n alternate sign in method</string>
+    <string name="front_page_message">Sign in with your credentials or use \n alternate sign in method</string>
     <string name="type_in_your_password">Type in your password</string>
 
     <string name="remove_contact">Remove contact</string>

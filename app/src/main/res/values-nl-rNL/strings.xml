@@ -36,11 +36,11 @@
     <string name="location_created">Locatie toegevoegd</string>
     <string name="location_edited">Locatie bewerkt</string>
 
-    <string name="lastname">Achternaam</string>
-    <string name="firstname">Voornaam</string>
+    <string name="last_name">Achternaam</string>
+    <string name="first_name">Voornaam</string>
     <string name="cancel">Annuleren</string>
     <string name="status">Status</string>
-    <string name="FrontpageMessage">Log in met je gegevens \n of kies een andere login methode</string>
+    <string name="front_page_message">Log in met je gegevens \n of kies een andere login methode</string>
     <string name="type_in_your_password">Voer uw wachtwoord in</string>
 
     <string name="remove_contact">Verwijder contact</string>
