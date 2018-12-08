@@ -1,6 +1,7 @@
 package nl.bramwinter.globus;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -41,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Parts of this code is taken/inspired from Googles firebase guide and Facebooks authentication guide
+ * Parts of this code is taken/inspired from Firebase's guide to authentication, including google auth and facebook auth
  */
 
 public class FrontpageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -68,6 +69,8 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frontpage);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //FAcebooks sdk's app activation helper:
         /**
