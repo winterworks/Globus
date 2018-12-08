@@ -17,6 +17,7 @@ import java.util.List;
 import nl.bramwinter.globus.R;
 import nl.bramwinter.globus.adaptors.LocationsUpdateRecyclerViewAdapter;
 import nl.bramwinter.globus.models.Location;
+import nl.bramwinter.globus.models.User;
 
 /**
  * A fragment representing a list of Items.
@@ -32,7 +33,7 @@ public class LocationUpdatesFragment extends Fragment {
     private int mColumnCount = 1;
     private locationsFragmentListener mListener;
 
-    private MutableLiveData<List<Location>> locationsLiveData;
+    private MutableLiveData<List<User>> contactsUsersLiveDataLiveData;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -75,14 +76,14 @@ public class LocationUpdatesFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            Observer<List<Location>> locationsObserver = locations -> recyclerView.setAdapter(new LocationsUpdateRecyclerViewAdapter(locations, mListener));
-            locationsLiveData.observe(this, locationsObserver);
+            Observer<List<User>> locationsObserver = users -> recyclerView.setAdapter(new LocationsUpdateRecyclerViewAdapter(users, mListener));
+            contactsUsersLiveDataLiveData.observe(this, locationsObserver);
         }
         return view;
     }
 
-    public void setLocationsLiveData(MutableLiveData<List<Location>> locationsLiveData) {
-        this.locationsLiveData = locationsLiveData;
+    public void setContactsUsersLiveData(MutableLiveData<List<User>> contactsUsersLiveDataLiveData) {
+        this.contactsUsersLiveDataLiveData = contactsUsersLiveDataLiveData;
     }
 
     @Override

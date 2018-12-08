@@ -14,7 +14,7 @@
     <string name="new_location">Nieuwe locatie</string>
     <string name="user">Gebruiker</string>
     <string name="user_moved_on_date">bewerkt op: %1$s</string>
-    <string name="added_add">toegevoegd op: %1$s</string>
+    <string name="added_at">toegevoegd op: %1$s</string>
 
     <string name="name">Naam</string>
     <string name="email">Email</string>
