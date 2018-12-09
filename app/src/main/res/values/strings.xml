@@ -52,4 +52,21 @@
 
     <string name="facebook_app_id">273035953395250</string>
     <string name="fb_login_protocol_scheme">fb273035953395250</string>
+    <string name="success">Success!!</string>
+    <string name="create_m">createUserWithEmail:success</string>
+    <string name="create_account">createAccount:</string>
+    <string name="createUWithEmail_failure">createUserWithEmail:failure</string>
+    <string name="handleFacebookAccessToken">handleFacebookAccessToken:</string>
+    <string name="signInWithCredential_success">signInWithCredential:success</string>
+    <string name="signInWithCredential_failure">signInWithCredential:failure</string>
+    <string name="signInWithEmail_success">signInWithEmail:success</string>
+    <string name="signInWithEmail_failure">signInWithEmail:failure</string>
+    <string name="firebaseAuthWithGoogle">firebaseAuthWithGoogle:</string>
+    <string name="signInWithCredential_success">signInWithCredential:success</string>
+    <string name="signInWithCredential_failure">signInWithCredential:failure</string>
+    <string name="google_sign_in_failed">Google sign in failed</string>
+    <string name="public_profile">public_profile</string>
+    <string name="facebook_onSuccess">facebook:onSuccess:</string>
+    <string name="facebook_onCancel">facebook:onCancel</string>
+    <string name="facebook_onError">facebook:onError</string>
 </resources>
