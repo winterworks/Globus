@@ -91,23 +91,23 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
         googleLogin = findViewById(R.id.googlelogin);
         facebookLogin = findViewById(R.id.FB_login_button);
 
-        facebookLogin.setReadPermissions("email", getString(R.string.public_profile));
+        facebookLogin.setReadPermissions("email", "public_profile");
         facebookLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, getString(R.string.facebook_onSuccess) + loginResult);
+                Log.d(TAG, "Facebook onSuccess" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, getString(R.string.facebook_onCancel));
+                Log.d(TAG, "Facebook onCancel");
                 // ...
             }
 
             @Override
             public void onError(FacebookException error) {
-                Log.d(TAG, getString(R.string.facebook_onError), error);
+                Log.d(TAG, "Facebook onError", error);
                 // ...
             }
         });
@@ -212,7 +212,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, getString(R.string.handleFacebookAccessToken) + token);
+        Log.d(TAG, "Handle Facebook access token" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         auth.signInWithCredential(credential)
@@ -221,12 +221,12 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, getString(R.string.signInWithCredential_success));
+                            Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = auth.getCurrentUser();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, getString(R.string.signInWithCredential_failure), task.getException());
+                            Log.w(TAG, "createUserWithEmail:success", task.getException());
                             Toast.makeText(FrontpageActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
@@ -250,12 +250,12 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, getString(R.string.signInWithEmail_success));
+                            Log.d(TAG, "Sign in with email: success");
                             FirebaseUser user = auth.getCurrentUser();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, getString(R.string.signInWithEmail_failure), task.getException());
+                            Log.w(TAG, "Sign in with email: failure", task.getException());
                             Toast.makeText(FrontpageActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
@@ -284,7 +284,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, getString(R.string.firebaseAuthWithGoogle) + acct.getId());
+        Log.d(TAG, "Firebase authentication with Google: " + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         auth.signInWithCredential(credential)
@@ -293,12 +293,12 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, getString(R.string.signInWithCredential_success));
+                            Log.d(TAG, "Sign in with credentials: success");
                             FirebaseUser user = auth.getCurrentUser();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, getString(R.string.signInWithCredential_failure), task.getException());
+                            Log.w(TAG, "Sign in with credentials: failure", task.getException());
                             Snackbar.make(findViewById(R.id.textViewStatus), R.string.auth_failed, Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -324,7 +324,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, getString(R.string.google_sign_in_failed), e);
+                Log.w(TAG, "Google sign in failed", e);
                 // ...
             }
         } else if (requestCode == REQUEST_CODE_CREATE_USER) {
