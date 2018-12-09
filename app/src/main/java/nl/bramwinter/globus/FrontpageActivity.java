@@ -227,7 +227,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(FrontpageActivity.this, "Authentication failed.",
+                            Toast.makeText(FrontpageActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -256,7 +256,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(FrontpageActivity.this, "Authentication failed.",
+                            Toast.makeText(FrontpageActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -299,7 +299,7 @@ public class FrontpageActivity extends AppCompatActivity implements View.OnClick
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Snackbar.make(findViewById(R.id.textViewStatus), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(findViewById(R.id.textViewStatus), R.string.auth_failed, Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
                         }
 

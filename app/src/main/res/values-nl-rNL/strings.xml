@@ -25,6 +25,7 @@
     <string name="update">Bijwerken</string>
     <string name="accept">Accepteren</string>
     <string name="reject">Weigeren</string>
+    <string name="required">Verplicht</string>
 
     <string name="create_user">Maak een nieuwe gebruiker</string>
     <string name="log_in">Log in</string>
