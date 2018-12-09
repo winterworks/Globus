@@ -10,6 +10,7 @@
     <string name="locations">Locations</string>
     <string name="description">Description</string>
 
+    <string name="user_no_locations">%1$s has no locations</string>
     <string name="locations_of">Locations of</string>
     <string name="old_location">Old location</string>
     <string name="new_location">New location</string>

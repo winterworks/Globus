@@ -10,6 +10,7 @@
     <string name="locations">Locaties</string>
     <string name="description">Omschrijving</string>
 
+    <string name="user_no_locations">%1$s heeft geen locaties</string>
     <string name="locations_of">Locaties van</string>
     <string name="old_location">Oude locatie</string>
     <string name="new_location">Nieuwe locatie</string>
