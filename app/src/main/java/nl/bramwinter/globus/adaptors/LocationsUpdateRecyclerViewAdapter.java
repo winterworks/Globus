@@ -40,7 +40,12 @@ public class LocationsUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Loc
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.user = users.get(position);
-        String title = holder.mView.getResources().getString(R.string.locations_of) + " " + holder.user.getName();
+        String title;
+        if (holder.user.getLocations().size() == 0) {
+            title = String.format(holder.mView.getResources().getString(R.string.user_no_locations), holder.user.getName());
+        } else {
+            title = holder.mView.getResources().getString(R.string.locations_of) + " " + holder.user.getName();
+        }
         holder.textTitle.setText(title);
 
         TableLayout tableLayout = holder.locationsTable;

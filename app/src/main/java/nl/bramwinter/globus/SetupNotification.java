@@ -1,4 +1,4 @@
-package nl.bramwinter;
+package nl.bramwinter.globus;
 
 import android.app.Application;
 import android.app.NotificationChannel;
