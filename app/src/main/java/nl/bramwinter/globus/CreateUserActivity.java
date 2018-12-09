@@ -1,5 +1,6 @@
 package nl.bramwinter.globus;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 /**
  *
- * Parts of this code is taken/inspired from Googles firebase guide
+ * Parts of this code is taken/inspired from/by Firebase's guide to their authentication
  *
  */
 
@@ -29,7 +30,7 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
 
     private FirebaseAuth mAuth;
     private EditText email, pw, fName, lName;
-    private Button cancel, login;
+    private Button cancel;
     private TextView status;
 
     private static final String TAG = "CreateUser";
@@ -50,7 +51,6 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         fName = findViewById(R.id.editTextFirstName);
         lName = findViewById(R.id.editTextLastName);
         cancel = findViewById(R.id.buttonCancel);
-        login = findViewById(R.id.buttonLogin);
 
         findViewById(R.id.buttonCancel).setOnClickListener(this);
         findViewById(R.id.buttonCreateUser).setOnClickListener(this);
@@ -61,13 +61,6 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-
-    public void updateUI(FirebaseUser user){
-        if (user != null) {
-
-        }
     }
 
     private boolean validateForm() {
@@ -102,6 +95,8 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
             return;
         }
 
+
+
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -109,14 +104,17 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            Toast.makeText(CreateUserActivity.this, "Success!!",
+                                    Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(CreateUserActivity.this, OverviewActivity.class);
+                            startActivity(intent);
+                            finish();
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(CreateUserActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(null);
                         }
                     }
                 });
@@ -130,9 +128,6 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
         }
         else if (i == R.id.buttonCancel){
             cancel();
-        }
-        else if(i == R.id.buttonLogin){
-
         }
     }
 }
