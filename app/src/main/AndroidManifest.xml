@@ -47,10 +47,13 @@
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name="com.facebook.CustomTabActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -60,14 +63,16 @@
         </activity>
 
 
-        <activity android:name=".OverviewActivity"/>
+        <activity android:name=".OverviewActivity"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".DataService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".FrontpageActivity">
+        <activity android:name=".FrontpageActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
