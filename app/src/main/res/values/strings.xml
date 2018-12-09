@@ -62,8 +62,6 @@
     <string name="signInWithEmail_success">signInWithEmail:success</string>
     <string name="signInWithEmail_failure">signInWithEmail:failure</string>
     <string name="firebaseAuthWithGoogle">firebaseAuthWithGoogle:</string>
-    <string name="signInWithCredential_success">signInWithCredential:success</string>
-    <string name="signInWithCredential_failure">signInWithCredential:failure</string>
     <string name="google_sign_in_failed">Google sign in failed</string>
     <string name="public_profile">public_profile</string>
     <string name="facebook_onSuccess">facebook:onSuccess:</string>
