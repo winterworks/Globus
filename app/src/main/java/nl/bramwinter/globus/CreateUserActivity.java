@@ -90,7 +90,7 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void createAccount(String email, String password) {
-        Log.d(TAG, getString(R.string.create_account) + email);
+        Log.d(TAG, "Created account for email: " + email);
         if (!validateForm()) {
             return;
         }
@@ -103,7 +103,7 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, getString(R.string.create_m));
+                            Log.d(TAG, "Create user with email: success");
                             Toast.makeText(CreateUserActivity.this, getString(R.string.success),
                                     Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(CreateUserActivity.this, OverviewActivity.class);
@@ -112,7 +112,7 @@ public class CreateUserActivity extends AppCompatActivity implements View.OnClic
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, getString(R.string.createUWithEmail_failure), task.getException());
+                            Log.w(TAG, "Create user With Email: failure", task.getException());
                             Toast.makeText(CreateUserActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                         }
